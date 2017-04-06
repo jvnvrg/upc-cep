@@ -47,7 +47,7 @@ public class CEPSink extends AbstractSink implements Configurable {
 
     @Override
     public void configure(Context context) {
-
+//test
     }
 
     @Override
