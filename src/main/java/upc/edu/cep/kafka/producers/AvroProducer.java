@@ -44,7 +44,7 @@ public class AvroProducer {
         Schema.Parser parser = new Schema.Parser();
         Schema schema = parser.parse(userSchema);
         int i = 0;
-        while (i++ < 10000) {
+        while (i++ < 1) {
 
             GenericRecord avroRecord = new GenericData.Record(schema);
             avroRecord.put("mylog", "value1");

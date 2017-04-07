@@ -1,11 +1,6 @@
 package upc.edu.cep.flume.sinks;
 
-import com.espertech.esper.client.Configuration;
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.UpdateListener;
+import com.espertech.esper.client.*;
 import org.apache.flume.*;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventHelper;
@@ -19,9 +14,9 @@ import java.util.Map;
 /**
 
  */
-public class CEPSink extends AbstractSink implements Configurable {
+public class CEPSink2 extends AbstractSink implements Configurable {
 
-    private static final Logger logger = LoggerFactory.getLogger(CEPSink.class);
+    private static final Logger logger = LoggerFactory.getLogger(CEPSink2.class);
 
     private EPServiceProvider epService;
 
@@ -121,8 +116,8 @@ public class CEPSink extends AbstractSink implements Configurable {
                     return;
                 }
                 EventBean event = newEvents[0];
-                System.out.println("Count: "+ event.get("count(log)"));
-                logger.warn("Count: "+ event.get("count(log)") + "----------------------------------");
+                System.out.println("Count: "+ event.get("count(log)") + "**************");
+                logger.warn("Count: "+ event.get("count(log)") + "**************");
             } catch (Exception e) {
                 e.printStackTrace();
             }
