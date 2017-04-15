@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by osboxes on 15/04/17.
  */
-public class Sequence extends ComplexEvent {
+public class SequenceCE extends ComplexEvent {
 
     @Override
     public ComplexEvent getInstance(List<Event> events) {

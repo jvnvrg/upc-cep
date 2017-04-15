@@ -6,5 +6,6 @@ auto.commit.interval.ms=1000
 linger.ms=0
 key.serializer=org.apache.kafka.common.serialization.StringSerializer
 value.serializer=org.apache.kafka.common.serialization.ByteArraySerializer
-
+partition = 5
+auto.leader.rebalance.enable=true
 block.on.buffer.full=true

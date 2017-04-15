@@ -16,17 +16,13 @@ import java.io.InputStream;
 import java.util.Properties;
 
 
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
 
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Properties;
 
 public class AvroProducer {
 
@@ -44,7 +40,7 @@ public class AvroProducer {
         Schema.Parser parser = new Schema.Parser();
         Schema schema = parser.parse(userSchema);
         int i = 0;
-        while (i++ < 1) {
+        while (true) {
 
             GenericRecord avroRecord = new GenericData.Record(schema);
             avroRecord.put("mylog", "value1");
@@ -59,10 +55,10 @@ public class AvroProducer {
                 e.printStackTrace();
             }
 
-            Thread.sleep(1);
+            Thread.sleep(100);
 
         }
-        producer.close();
+        //producer.close();
     }
 
     public static byte[] datumToByteArray(Schema schema, GenericRecord datum) throws IOException {

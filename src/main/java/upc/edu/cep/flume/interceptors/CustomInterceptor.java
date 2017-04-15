@@ -6,7 +6,15 @@ import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.interceptor.Interceptor;
 
-public class I1 implements Interceptor {
+public class CustomInterceptor implements Interceptor {
+
+    private String aaa;
+
+
+    public CustomInterceptor(String aaa){
+        this.aaa = aaa;
+        System.out.println(aaa);
+    }
 
     @Override
     public void close()
@@ -17,7 +25,7 @@ public class I1 implements Interceptor {
     @Override
     public void initialize()
     {
-
+        System.out.println("init "+aaa);
     }
 
     @Override
@@ -29,7 +37,7 @@ public class I1 implements Interceptor {
 //        byte[] modifiedEvent = "world".getBytes();
 //
 //        event.setBody(modifiedEvent);
-
+        //System.out.println(aaa);
 
         return event;
     }
@@ -47,15 +55,18 @@ public class I1 implements Interceptor {
 
     public static class Builder implements Interceptor.Builder
     {
+        private String aaa;
+
         @Override
         public void configure(Context context) {
             // TODO Auto-generated method stub
-            System.out.println(context.getString("aaa"));
+            aaa = context.getString("aaa");
+
         }
 
         @Override
         public Interceptor build() {
-            return new I1();
+            return new CustomInterceptor(aaa);
         }
     }
 }

@@ -7,24 +7,20 @@ package upc.edu.cep.kafka.producers;
 import com.google.common.io.Resources;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.Encoder;
+import org.apache.avro.io.EncoderFactory;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.SerializationException;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-
-import org.apache.avro.generic.GenericDatumWriter;
-import org.apache.avro.io.Encoder;
-import org.apache.avro.io.EncoderFactory;
-
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-public class AvroProducer {
+public class AvroProducer1 {
 
     public static void main(String[] args) throws Exception {
         KafkaProducer<String, String> producer;
@@ -40,14 +36,14 @@ public class AvroProducer {
         Schema.Parser parser = new Schema.Parser();
         Schema schema = parser.parse(userSchema);
         int i = 0;
-        while (i++ < 2) {
+        while (true) {
 
             GenericRecord avroRecord = new GenericData.Record(schema);
             avroRecord.put("mylog", "value1");
             //  byte[] bytes = recordInjection.apply(avroRecord);
 
             //  ProducerRecord<String, byte[]> record = new ProducerRecord<>("mytopic", bytes);
-            ProducerRecord record = new ProducerRecord<String, byte[]>("logcep", key, datumToByteArray(schema, avroRecord));
+            ProducerRecord record = new ProducerRecord<String, byte[]>("logcep1", key, datumToByteArray(schema, avroRecord));
             try {
                 producer.send(record);
             } catch (SerializationException e) {
@@ -55,10 +51,10 @@ public class AvroProducer {
                 e.printStackTrace();
             }
 
-            Thread.sleep(1);
+            Thread.sleep(100);
 
         }
-        producer.close();
+        //producer.close();
     }
 
     public static byte[] datumToByteArray(Schema schema, GenericRecord datum) throws IOException {

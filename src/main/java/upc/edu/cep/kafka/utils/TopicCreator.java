@@ -1,4 +1,4 @@
-package upc.edu.cep.kafka.producers;
+package upc.edu.cep.kafka.utils;
 
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.ZkConnection;

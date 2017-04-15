@@ -1,11 +1,6 @@
 package upc.edu.cep.flume.sinks;
 
-import com.espertech.esper.client.Configuration;
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.UpdateListener;
+import com.espertech.esper.client.*;
 import org.apache.flume.*;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventHelper;
@@ -23,9 +18,9 @@ import java.util.Map;
 /**
 
  */
-public class CEPSink extends AbstractSink implements Configurable {
+public class fecSink extends AbstractSink implements Configurable {
 
-    private static final Logger logger = LoggerFactory.getLogger(CEPSink.class);
+    private static final Logger logger = LoggerFactory.getLogger(fecSink.class);
 
     private EPServiceProvider epService;
 
@@ -40,7 +35,7 @@ public class CEPSink extends AbstractSink implements Configurable {
 
 
         // Creating a Statement
-        String expression = "select count(log) from com.edu.cep.events.LogEvent.win:time(2 sec)"; //time_batch
+        String expression = "select log from com.edu.cep.events.LogEvent"; //time_batch
         EPStatement statement = epService.getEPAdministrator().createEPL(expression);
 
 
@@ -125,12 +120,7 @@ public class CEPSink extends AbstractSink implements Configurable {
                     return;
                 }
                 EventBean event = newEvents[0];
-                System.out.println("Count: "+ event.get("count(log)"));
-                try {
-                    Files.write(Paths.get("/home/osboxes/upc-cep/cep1.txt"), ("Count: "+ event.get("count(log)") + "----------------------------------").getBytes(), StandardOpenOption.APPEND);
-                }catch (IOException e) {
-                    //exception handling left as an exercise for the reader
-                }
+                System.out.println("Count: "+ event.get("log"));
                 //logger.info();
             } catch (Exception e) {
                 e.printStackTrace();

@@ -14,6 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import upc.edu.cep.events.LogEvent;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 /**
@@ -122,7 +126,12 @@ public class CEPSink extends AbstractSink implements Configurable {
                 }
                 EventBean event = newEvents[0];
                 System.out.println("Count: "+ event.get("count(log)"));
-                logger.warn("Count: "+ event.get("count(log)") + "----------------------------------");
+                try {
+                    Files.write(Paths.get("/home/osboxes/upc-cep/cep1.txt"), ("Count: "+ event.get("count(log)") + "----------------------------------").getBytes(), StandardOpenOption.APPEND);
+                }catch (IOException e) {
+                    //exception handling left as an exercise for the reader
+                }
+                //logger.info();
             } catch (Exception e) {
                 e.printStackTrace();
             }
