@@ -5,7 +5,10 @@ import java.util.Map;
 /**
  * Created by osboxes on 14/04/17.
  */
-public class SimpleEvent extends Event{
+public class SimpleEvent extends Event {
+
+    private String eventName;
+
     private Map<String, Class> attributes;
 
     public void addAttribute(String attName, Class attType) {
@@ -18,5 +21,13 @@ public class SimpleEvent extends Event{
 
     public void setAttributes(Map<String, Class> attributes) {
         this.attributes = attributes;
+    }
+
+    public String getEventName() {
+        return eventName;
+    }
+
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
     }
 }

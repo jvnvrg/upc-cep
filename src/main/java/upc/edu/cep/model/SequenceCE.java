@@ -1,5 +1,6 @@
 package upc.edu.cep.model;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -7,18 +8,31 @@ import java.util.List;
  */
 public class SequenceCE extends ComplexEvent {
 
-    @Override
-    public ComplexEvent getInstance(List<Event> events) {
-        return null;
+    private SequenceCE(List<Event> events) {
+        super(events);
+    }
+
+    private SequenceCE() {
+        super();
     }
 
     @Override
-    public ComplexEvent getInstance() {
-        return null;
+    public SequenceCE getInstance(List<Event> events) {
+        events = new LinkedList<>();
+        return new SequenceCE(events);
+    }
+
+    @Override
+    public SequenceCE getInstance() {
+        return new SequenceCE();
     }
 
     @Override
     public void addEvent(Event event) throws Exception {
+        events.add(event);
+    }
 
+    public void addEvent(Event event, int index) throws Exception {
+        events.set(index, event);
     }
 }
