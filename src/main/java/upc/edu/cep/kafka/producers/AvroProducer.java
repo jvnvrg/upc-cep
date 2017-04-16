@@ -25,7 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 public class AvroProducer {
-
+//hi
     public static void main(String[] args) throws Exception {
         KafkaProducer<String, String> producer;
         try (InputStream props = Resources.getResource("producer.props").openStream()) {
