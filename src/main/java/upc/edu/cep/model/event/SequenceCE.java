@@ -1,4 +1,4 @@
-package upc.edu.cep.model;
+package upc.edu.cep.model.event;
 
 import java.util.LinkedList;
 import java.util.List;

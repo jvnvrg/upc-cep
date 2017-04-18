@@ -1,6 +1,5 @@
-package upc.edu.cep.model;
+package upc.edu.cep.model.event;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
