@@ -1,11 +1,12 @@
 package upc.edu.cep.flume.sinks;
 
-import com.espertech.esper.client.Configuration;
-import com.espertech.esper.client.EPServiceProvider;
-import com.espertech.esper.client.EPServiceProviderManager;
-import com.espertech.esper.client.EPStatement;
-import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.UpdateListener;
+import com.espertech.esper.client.*;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.DatumReader;
+import org.apache.avro.io.Decoder;
+import org.apache.avro.io.DecoderFactory;
+import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.flume.*;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventHelper;
@@ -18,7 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Map;
+import java.util.*;
 
 /**
 
@@ -29,18 +30,58 @@ public class CEPSink extends AbstractSink implements Configurable {
 
     private EPServiceProvider epService;
 
+
+    private Map<String, SinkEvent> events;
+
+    public static Schema makeSchema(Map attributes, String eventName) {
+
+        List<Schema.Field> fields = new ArrayList();
+        Set<Map.Entry> attSet = attributes.entrySet();
+        for (Map.Entry entry : attSet) {
+            switch ((String) entry.getValue()) {
+                case CEPSinkConstants.TYPE_BOOLEAN: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.BOOLEAN), null, null));
+                    break;
+                }
+                case CEPSinkConstants.TYPE_STRING: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.STRING), null, null));
+                    break;
+                }
+                case CEPSinkConstants.TYPE_DOUBLE: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.DOUBLE), null, null));
+                    break;
+                }
+                case CEPSinkConstants.TYPE_FLOAT: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.FLOAT), null, null));
+                    break;
+                }
+                case CEPSinkConstants.TYPE_BYTES: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.BYTES), null, null));
+                    break;
+                }
+                case CEPSinkConstants.TYPE_LONG: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.LONG), null, null));
+                    break;
+                }
+            }
+        }
+
+        Schema schema = Schema.createRecord(eventName, null, "upc.cep", false);
+        schema.setFields(fields);
+
+        return (schema);
+    }
+
     @Override
     public synchronized void start() {
         super.start();
 
-        // Configuration
-        Configuration config = new Configuration();
-        config.addEventType("com.edu.cep.events.LogEvent",LogEvent.class.getName());
-         epService = EPServiceProviderManager.getDefaultProvider(config);
-
+//        Configuration config = new Configuration();
+//        config.addEventType("com.edu.cep.events.LogEvent",LogEvent.class.getName());
+//        epService = EPServiceProviderManager.getDefaultProvider(config);
 
         // Creating a Statement
-        String expression = "select count(log) from com.edu.cep.events.LogEvent.win:time(2 sec)"; //time_batch
+        String expression = "select count(mylog) from Event1.win:time(2 sec)"; //time_batch
         EPStatement statement = epService.getEPAdministrator().createEPL(expression);
 
 
@@ -51,7 +92,31 @@ public class CEPSink extends AbstractSink implements Configurable {
 
     @Override
     public void configure(Context context) {
-//test
+        // Configuration
+        Configuration config = new Configuration();
+        //config.addEventType("com.edu.cep.events.LogEvent",LogEvent.class.getName());
+        epService = EPServiceProviderManager.getDefaultProvider(config);
+        events = new HashMap<>();
+        String[] eventNames = context.getString(CEPSinkConstants.EVENT_NAME).trim().split(" ");
+        for (String eventName : eventNames) {
+            String eventAttributes = context.getString(eventName + "." + CEPSinkConstants.EVENT_ATTRIBUTES);
+            SinkEvent sinkEvent = new SinkEvent();
+            if (eventAttributes != null && !eventAttributes.isEmpty()) {
+                String[] atts = eventAttributes.trim().split(" ");
+                Map attributes = new HashMap<>();
+                for (String attribute : atts) {
+                    attributes.put(attribute, context.getString(eventName + "." + attribute + "." + CEPSinkConstants.ATTRIBUTE_TYPE));
+                    System.out.println("att: **"+attribute+"*******************");
+                    System.out.println("type: **"+attributes.get(attribute)+"*******************");
+                    System.out.println("eventName: **"+eventName+"*******************");
+                }
+                events.put(eventName, new SinkEvent(attributes, attributes.keySet(), makeSchema(attributes, eventName)));
+                ConfigurationEventTypeAvro avroEvent = new ConfigurationEventTypeAvro(events.get(eventName).getSchema());
+                epService.getEPAdministrator().getConfiguration().addEventTypeAvro(eventName, avroEvent);
+            }
+        }
+
+
     }
 
     @Override
@@ -66,27 +131,34 @@ public class CEPSink extends AbstractSink implements Configurable {
         Channel channel = getChannel();
         Transaction tx = null;
         try {
+            System.out.println("begin");
             tx = channel.getTransaction();
             tx.begin();
 
             Event event = channel.take();
 
             if (event != null) {
-
-                Map<String,String> headers = event.getHeaders();
+                System.out.println("then");
+                Map<String, String> headers = event.getHeaders();
 
                 String line = EventHelper.dumpEvent(event);
                 logger.debug(line);
-
+                String eventName = headers.get("EventName");
                 byte[] body = event.getBody();
-                String data = new String(body);
-                /*System.out.println(data);
-                System.out.println(headers.get("hostname"));
+                System.out.println("body is " + new String(body));
+                DatumReader<GenericRecord> reader = new SpecificDatumReader<GenericRecord>(events.get(eventName).getSchema());
+                Decoder decoder = DecoderFactory.get().binaryDecoder(body, null);
+                GenericRecord payload2 = null;
+                payload2 = reader.read(null, decoder);
+                System.out.println("Message received : " + payload2.get("mylog"));
+                System.out.println("Message received : " + payload2.get("yourlog"));
+                epService.getEPRuntime().sendEventAvro(payload2,eventName);
+                /*System.out.println(headers.get("hostname"));
                 System.out.println(Long.parseLong(headers.get("timestamp")));*/
                 // Sending events
                 LogEvent cepEvent = new LogEvent();
-                cepEvent.setLog(data);
-                if(headers != null) {
+                cepEvent.setLog("w");
+                if (headers != null) {
                     cepEvent.setHostname(headers.get("hostname"));
                     cepEvent.setTimestamp(Long.parseLong(headers.get("timestamp")));
                 }
@@ -99,6 +171,7 @@ public class CEPSink extends AbstractSink implements Configurable {
 
             tx.commit();
         } catch (Exception e) {
+            System.out.println(e.toString());
             logger.error("can't process events, drop it!", e);
             if (tx != null) {
                 tx.commit();// commit to drop bad event, otherwise it will enter dead loop.
@@ -125,10 +198,10 @@ public class CEPSink extends AbstractSink implements Configurable {
                     return;
                 }
                 EventBean event = newEvents[0];
-                System.out.println("Count: "+ event.get("count(log)"));
+                System.out.println("Count: " + event.get("count(mylog)"));
                 try {
-                    Files.write(Paths.get("/home/osboxes/upc-cep/cep1.txt"), ("Count: "+ event.get("count(log)") + "----------------------------------").getBytes(), StandardOpenOption.APPEND);
-                }catch (IOException e) {
+                    Files.write(Paths.get("/home/osboxes/upc-cep/cep1.txt"), ("Count: " + event.get("count(mylog)") + "----------------------------------").getBytes(), StandardOpenOption.APPEND);
+                } catch (IOException e) {
                     //exception handling left as an exercise for the reader
                 }
                 //logger.info();

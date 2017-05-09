@@ -1,6 +1,7 @@
 package upc.edu.cep.model.action;
 
 import upc.edu.cep.model.event.Event;
+import upc.edu.cep.model.event.SimpleEvent;
 
 import java.util.*;
 
@@ -18,14 +19,14 @@ public class Action {
         POST_AND_KAFKA
     }
 
-    private Event associatedEvent;
+    private SimpleEvent associatedEvent;
     private String assocociatedEventTopic;
     private Map actionAttributes;
     private ActionType actionType;
     private String serviceURL;
     private List<String> topicNames;
 
-    public Action(Event associatedEvent, String associatedEventTopic, HashMap<String,String> actionAttributes, ActionType actionType, String serviceURL, List<String> topicNames) {
+    public Action(SimpleEvent associatedEvent, String associatedEventTopic, HashMap<String,String> actionAttributes, ActionType actionType, String serviceURL, List<String> topicNames) {
         this.associatedEvent = associatedEvent;
         this.assocociatedEventTopic = associatedEventTopic;
         this.actionAttributes = actionAttributes;
@@ -39,11 +40,11 @@ public class Action {
         this.topicNames = new ArrayList<String>();
     }
 
-    public Event getAssociatedEvent() {
+    public SimpleEvent getAssociatedEvent() {
         return associatedEvent;
     }
 
-    public void setAssociatedEvent(Event associatedEvent) {
+    public void setAssociatedEvent(SimpleEvent associatedEvent) {
         this.associatedEvent = associatedEvent;
     }
 

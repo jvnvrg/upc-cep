@@ -6,23 +6,28 @@ package upc.edu.cep.model.condition;
 public class FunctionOperand extends Operand {
 
     private String functionName;
-    private boolean ouEventAttribute;
-    private String eventName;
-    private String eventAttributeName;
     private String functionURL;
-    public enum Method {GET,POST};
+    public enum Method {GET, POST};
     private Method functionMethod;
+    private Operand innerOperand;
 
-    public FunctionOperand(String functionName, boolean ouEventAttribute, String eventName, String eventAttributeName, String functionURL, Method functionMethod) {
+
+    public FunctionOperand(String functionName, Operand innerOperand, String functionURL, Method functionMethod) {
         this.functionName = functionName;
-        this.ouEventAttribute = ouEventAttribute;
-        this.eventName = eventName;
-        this.eventAttributeName = eventAttributeName;
         this.functionURL = functionURL;
         this.functionMethod = functionMethod;
+        this.innerOperand = innerOperand;
     }
 
     public FunctionOperand() {
+    }
+
+    public Operand getInnerOperand() {
+        return innerOperand;
+    }
+
+    public void setInnerOperand(Operand innerOperand) {
+        this.innerOperand = innerOperand;
     }
 
     public String getFunctionName() {
@@ -31,30 +36,6 @@ public class FunctionOperand extends Operand {
 
     public void setFunctionName(String functionName) {
         this.functionName = functionName;
-    }
-
-    public boolean isOuEventAttribute() {
-        return ouEventAttribute;
-    }
-
-    public void setOuEventAttribute(boolean ouEventAttribute) {
-        this.ouEventAttribute = ouEventAttribute;
-    }
-
-    public String getEventName() {
-        return eventName;
-    }
-
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
-    }
-
-    public String getEventAttributeName() {
-        return eventAttributeName;
-    }
-
-    public void setEventAttributeName(String eventAttributeName) {
-        this.eventAttributeName = eventAttributeName;
     }
 
     public String getFunctionURL() {

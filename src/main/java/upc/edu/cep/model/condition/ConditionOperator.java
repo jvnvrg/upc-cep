@@ -8,10 +8,8 @@ import com.espertech.esper.epl.join.hint.ExcludePlanFilterOperatorType;
 public class ConditionOperator {
 
     public static enum Operators {
-        S_NOTEQUAL,
-        S_EQUALS,
-        N_EQUALS,
-        N_NOTEQUALS,
+        EQ,
+        NE,
         GT,
         GE,
         LE,

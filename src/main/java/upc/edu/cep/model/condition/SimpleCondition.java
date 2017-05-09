@@ -3,7 +3,7 @@ package upc.edu.cep.model.condition;
 /**
  * Created by osboxes on 17/04/17.
  */
-public class SimpleCondition extends Condition {
+public class SimpleCondition extends NonTemporalCondition {
 
     private ConditionOperator operator;
     private Operand operand1;

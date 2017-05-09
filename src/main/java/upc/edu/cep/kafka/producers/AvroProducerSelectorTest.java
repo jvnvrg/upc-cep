@@ -7,29 +7,21 @@ package upc.edu.cep.kafka.producers;
 import com.google.common.io.Resources;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.Encoder;
+import org.apache.avro.io.EncoderFactory;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.SerializationException;
 
-import java.io.InputStream;
-import java.util.Properties;
-
-
-import org.apache.avro.generic.GenericDatumWriter;
-import org.apache.avro.io.Encoder;
-import org.apache.avro.io.EncoderFactory;
-
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.Random;
 
-// /home/osboxes/apache-flume-1.7.0-bin/bin/flume-ng agent -name remote_agent -c
-// /home/osboxes/apache-flume-1.7.0-bin/conf -f /home/osboxes/apache-flume-1.7.0-bin/conf/flume-esper_new.properties
-
-
-
-public class AvroProducer {
+public class AvroProducerSelectorTest {
 //hi
     public static void main(String[] args) throws Exception {
         KafkaProducer<String, String> producer;
@@ -41,15 +33,14 @@ public class AvroProducer {
         String key = "key1";
         String userSchema = "{\"type\":\"record\"," +
                 "\"name\":\"myrecord\"," +
-                "\"fields\":[{\"name\":\"mylog\",\"type\":\"string\"},{\"name\":\"yourlog\",\"type\":\"string\"}]}";
+                "\"fields\":[{\"name\":\"mylog\",\"type\":\"string\"}]}";
         Schema.Parser parser = new Schema.Parser();
         Schema schema = parser.parse(userSchema);
         int i = 0;
-        while (true) {
+        while (i<5) {
 
             GenericRecord avroRecord = new GenericData.Record(schema);
-            avroRecord.put("mylog", "value1");
-            avroRecord.put("yourlog", "value2");
+            avroRecord.put("mylog", "10");
             //  byte[] bytes = recordInjection.apply(avroRecord);
 
             //  ProducerRecord<String, byte[]> record = new ProducerRecord<>("mytopic", bytes);
@@ -60,11 +51,48 @@ public class AvroProducer {
                 // may need to do something with it
                 e.printStackTrace();
             }
-
-            Thread.sleep(1000);
+            i++;
+            Thread.sleep(100);
 
         }
-        //producer.close();
+//        i = 0;
+//        while (i<5) {
+//
+//            GenericRecord avroRecord = new GenericData.Record(schema);
+//            avroRecord.put("mylog", "7");
+//            //  byte[] bytes = recordInjection.apply(avroRecord);
+//
+//            //  ProducerRecord<String, byte[]> record = new ProducerRecord<>("mytopic", bytes);
+//            ProducerRecord record = new ProducerRecord<String, byte[]>("logcep", key, datumToByteArray(schema, avroRecord));
+//            try {
+//                producer.send(record);
+//            } catch (SerializationException e) {
+//                // may need to do something with it
+//                e.printStackTrace();
+//            }
+//            i++;
+//            Thread.sleep(100);
+//
+//        }
+//        while (i<5) {
+//
+//            GenericRecord avroRecord = new GenericData.Record(schema);
+//            avroRecord.put("mylog", "3");
+//            //  byte[] bytes = recordInjection.apply(avroRecord);
+//
+//            //  ProducerRecord<String, byte[]> record = new ProducerRecord<>("mytopic", bytes);
+//            ProducerRecord record = new ProducerRecord<String, byte[]>("logcep", key, datumToByteArray(schema, avroRecord));
+//            try {
+//                producer.send(record);
+//            } catch (SerializationException e) {
+//                // may need to do something with it
+//                e.printStackTrace();
+//            }
+//            i++;
+//            Thread.sleep(100);
+//
+//        }
+        producer.close();
     }
 
     public static byte[] datumToByteArray(Schema schema, GenericRecord datum) throws IOException {

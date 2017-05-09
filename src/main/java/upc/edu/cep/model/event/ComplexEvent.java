@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by osboxes on 14/04/17.
  */
-public abstract class ComplexEvent {
+public abstract class ComplexEvent extends Event {
 
     List<Event> events;
 
