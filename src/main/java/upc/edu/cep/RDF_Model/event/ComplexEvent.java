@@ -1,6 +1,7 @@
 package upc.edu.cep.RDF_Model.event;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -8,25 +9,25 @@ import java.util.List;
  */
 public abstract class ComplexEvent extends Event {
 
-    protected List<Event> events;
+    protected LinkedList <Event> events;
 
-    public ComplexEvent(List<Event> events) {
+    public ComplexEvent(LinkedList<Event> events) {
         this.events = events;
     }
 
     public ComplexEvent() {
-        events = new ArrayList<>();
+        events = new LinkedList<>();
     }
 
     public void addEvents(Event event) {
         events.add(event);
     }
 
-    public List<Event> getEvents() {
+    public LinkedList<Event> getEvents() {
         return events;
     }
 
-    public void setEvents(List<Event> events) {
+    public void setEvents(LinkedList<Event> events) {
         this.events = events;
     }
 

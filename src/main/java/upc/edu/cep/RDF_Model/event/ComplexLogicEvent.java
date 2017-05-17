@@ -2,6 +2,7 @@ package upc.edu.cep.RDF_Model.event;
 
 import upc.edu.cep.RDF_Model.Operators.LogicOperator;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ public class ComplexLogicEvent extends ComplexEvent {
     public ComplexLogicEvent() {
     }
 
-    public ComplexLogicEvent(LogicOperator logicOperator, List<Event> events) {
+    public ComplexLogicEvent(LogicOperator logicOperator, LinkedList<Event> events) {
         super(events);
         this.logicOperator = logicOperator;
     }
