@@ -15,10 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import upc.edu.cep.events.LogEvent;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 /**
@@ -32,6 +28,10 @@ public class CEPSink extends AbstractSink implements Configurable {
 
 
     private Map<String, SinkEvent> events;
+
+    private EPStatement statement;
+
+    private String monitor = "";
 
     public static Schema makeSchema(Map attributes, String eventName) {
 
@@ -80,19 +80,38 @@ public class CEPSink extends AbstractSink implements Configurable {
 //        config.addEventType("com.edu.cep.events.LogEvent",LogEvent.class.getName());
 //        epService = EPServiceProviderManager.getDefaultProvider(config);
 
-        // Creating a Statement
-        String expression = "select count(mylog) from Event1.win:time(2 sec)"; //time_batch
-        EPStatement statement = epService.getEPAdministrator().createEPL(expression);
+        //Creating a Statement
+        String expression = "select count(a) from pattern [every a=Event1 where timer:within(2 sec)].win:time(2 hour)"; //time_batch
 
+        if (epService.getEPAdministrator().getStatement("d") == null) {
+            monitor += " what!!! ";
+            System.out.println("I you me");
+            statement = epService.getEPAdministrator().createEPL(expression, "d");
+            MyListener listener = new MyListener();
+            statement.addListener(listener);
+        } else {
+            System.out.println("Stooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooop");
+            monitor += " HEEEEY!!! ";
+            this.stop();
+        }
+//or test
+        //EPStatement statement = epService.getEPAdministrator().createPattern("every (spike= Event1 or error= Event2)");
+//        String expression = "select * from pattern [every (spike= Event1 or error= Event2)]"; //time_batch
+//        EPStatement statement = epService.getEPAdministrator().createEPL(expression);
+
+//and test
+        //String expression = "select * from pattern [every (spike= Event1 and error= Event2 where timer:within(10 sec))]"; //time_batch
+        //EPStatement statement = epService.getEPAdministrator().createEPL(expression);
 
         // Adding a Listener
-        MyListener listener = new MyListener();
-        statement.addListener(listener);
+
+
     }
 
     @Override
     public void configure(Context context) {
         // Configuration
+
         Configuration config = new Configuration();
         //config.addEventType("com.edu.cep.events.LogEvent",LogEvent.class.getName());
         epService = EPServiceProviderManager.getDefaultProvider(config);
@@ -122,6 +141,12 @@ public class CEPSink extends AbstractSink implements Configurable {
     @Override
     public synchronized void stop() {
         super.stop();
+        //epService.removeAllStatementStateListeners();
+        monitor = " old??";
+//
+//        epService.removeAllServiceStateListeners();
+//        epService.removeAllStatementStateListeners();
+        //       statement.destroy();
     }
 
     @Override
@@ -145,7 +170,7 @@ public class CEPSink extends AbstractSink implements Configurable {
                 logger.debug(line);
                 String eventName = headers.get("EventName");
                 byte[] body = event.getBody();
-                System.out.println("body is " + new String(body));
+                //System.out.println("body is " + new String(body));
                 DatumReader<GenericRecord> reader = new SpecificDatumReader<GenericRecord>(events.get(eventName).getSchema());
                 Decoder decoder = DecoderFactory.get().binaryDecoder(body, null);
                 GenericRecord payload2 = null;
@@ -198,12 +223,15 @@ public class CEPSink extends AbstractSink implements Configurable {
                     return;
                 }
                 EventBean event = newEvents[0];
-                System.out.println("Count: " + event.get("count(mylog)"));
-                try {
-                    Files.write(Paths.get("/home/osboxes/upc-cep/cep1.txt"), ("Count: " + event.get("count(mylog)") + "----------------------------------").getBytes(), StandardOpenOption.APPEND);
-                } catch (IOException e) {
-                    //exception handling left as an exercise for the reader
-                }
+                //System.out.println("Spike: " + event.get("spike"));
+                //System.out.println("Error: " + event.get("error"));
+                System.out.println("Count: " + event.get("count(a)") + monitor);
+                System.out.println(statement.getName());
+//                try {
+//             //       Files.write(Paths.get("/home/osboxes/upc-cep/cep1.txt"), ("Count: " + event.get("count(mylog)") + "----------------------------------").getBytes(), StandardOpenOption.APPEND);
+//                } catch (IOException e) {
+//                    //exception handling left as an exercise for the reader
+                // }
                 //logger.info();
             } catch (Exception e) {
                 e.printStackTrace();

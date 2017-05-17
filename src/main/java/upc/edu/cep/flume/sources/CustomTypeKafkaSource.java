@@ -4,7 +4,6 @@ package upc.edu.cep.flume.sources;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import kafka.cluster.BrokerEndPoint;
 import kafka.utils.ZKGroupTopicDirs;
 import kafka.utils.ZkUtils;
@@ -85,6 +84,8 @@ public class CustomTypeKafkaSource extends AbstractPollableSource
     private static final int ZK_SESSION_TIMEOUT = 30000;
     private static final int ZK_CONNECTION_TIMEOUT = 30000;
     private final List<Event> eventList = new ArrayList<Event>();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Gson gson = new Gson();
     private Context context;
     private Properties kafkaProps;
     private KafkaSourceCounter counter;
@@ -92,31 +93,22 @@ public class CustomTypeKafkaSource extends AbstractPollableSource
     private Iterator<ConsumerRecord<String, byte[]>> it;
     private Map<TopicPartition, OffsetAndMetadata> tpAndOffsetMetadata;
     private AtomicBoolean rebalanceFlag;
-
     private Map<String, String> headers;
-
     private Optional<SpecificDatumReader<AvroFlumeEvent>> reader = Optional.absent();
     private BinaryDecoder decoder = null;
-
     private boolean useAvroEventFormat;
-
     private int batchUpperLimit;
     private int maxBatchDurationMillis;
-
     private Subscriber subscriber;
-
     private String zookeeperConnect;
     private String bootstrapServers;
     private String groupId = DEFAULT_GROUP_ID;
     private boolean migrateZookeeperOffsets = DEFAULT_MIGRATE_ZOOKEEPER_OFFSETS;
-
     private String eventType;
     private String eventName;
     private Map<String, String> attributes;
     private Set<String> attributeNames;
     private boolean thereIsType = false;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final Gson gson = new Gson();
     private Schema schema;
     /**
      * Helper function to convert a map of CharSequence to a map of String.
@@ -127,6 +119,59 @@ public class CustomTypeKafkaSource extends AbstractPollableSource
             stringMap.put(entry.getKey().toString(), entry.getValue().toString());
         }
         return stringMap;
+    }
+
+    public static Schema makeSchema(Map attributes, String eventName) {
+
+        List<Schema.Field> fields = new ArrayList();
+        Set<Map.Entry> attSet = attributes.entrySet();
+        for (Map.Entry entry : attSet) {
+            switch ((String) entry.getValue()) {
+                case CustomTypeKafkaSourceConstants.TYPE_BOOLEAN: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.BOOLEAN), null, null));
+                    break;
+                }
+                case CustomTypeKafkaSourceConstants.TYPE_STRING: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.STRING), null, null));
+                    break;
+                }
+                case CustomTypeKafkaSourceConstants.TYPE_DOUBLE: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.DOUBLE), null, null));
+                    break;
+                }
+                case CustomTypeKafkaSourceConstants.TYPE_FLOAT: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.FLOAT), null, null));
+                    break;
+                }
+                case CustomTypeKafkaSourceConstants.TYPE_BYTES: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.BYTES), null, null));
+                    break;
+                }
+                case CustomTypeKafkaSourceConstants.TYPE_LONG: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.LONG), null, null));
+                    break;
+                }
+            }
+        }
+
+        Schema schema = Schema.createRecord(eventName, null, "upc.cep", false);
+        schema.setFields(fields);
+
+        return (schema);
+    }
+
+    public static byte[] datumToByteArray(Schema schema, GenericRecord datum) throws IOException {
+        GenericDatumWriter<GenericRecord> writer = new GenericDatumWriter<GenericRecord>(schema);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try {
+            Encoder e = EncoderFactory.get().binaryEncoder(os, null);
+            writer.write(datum, e);
+            e.flush();
+            byte[] byteData = os.toByteArray();
+            return byteData;
+        } finally {
+            os.close();
+        }
     }
 
     @Override
@@ -192,13 +237,13 @@ public class CustomTypeKafkaSource extends AbstractPollableSource
 
                     eventBody = avroevent.getBody().array();
                     headers = toStringMap(avroevent.getHeaders());
-                    System.out.println("avvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrrrrrrrrrrrrrrrrrrrrrrrrrroooooooooooooooo");
+                    //System.out.println("avvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvrrrrrrrrrrrrrrrrrrrrrrrrrroooooooooooooooo");
                 } else {
 
                     eventBody = message.value();
                     headers.clear();
                     headers = new HashMap<String, String>(4);
-                    System.out.println("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
+                    //System.out.println("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
 
                     if(thereIsType)
                     {
@@ -287,42 +332,6 @@ public class CustomTypeKafkaSource extends AbstractPollableSource
         }
     }
 
-    public static Schema makeSchema(Map attributes, String eventName) {
-
-        List<Schema.Field> fields = new ArrayList();
-        Set<Map.Entry> attSet = attributes.entrySet();
-        for (Map.Entry entry : attSet)
-        {
-            switch ((String)entry.getValue())
-            {
-                case CustomTypeKafkaSourceConstants.TYPE_BOOLEAN:{fields.add(new Schema.Field((String)entry.getKey(), Schema.create(Schema.Type.BOOLEAN), null, null)); break;}
-                case CustomTypeKafkaSourceConstants.TYPE_STRING:{fields.add(new Schema.Field((String)entry.getKey(), Schema.create(Schema.Type.STRING), null, null)); break;}
-                case CustomTypeKafkaSourceConstants.TYPE_DOUBLE:{fields.add(new Schema.Field((String)entry.getKey(), Schema.create(Schema.Type.DOUBLE), null, null)); break;}
-                case CustomTypeKafkaSourceConstants.TYPE_FLOAT:{fields.add(new Schema.Field((String)entry.getKey(), Schema.create(Schema.Type.FLOAT), null, null)); break;}
-                case CustomTypeKafkaSourceConstants.TYPE_BYTES:{fields.add(new Schema.Field((String)entry.getKey(), Schema.create(Schema.Type.BYTES), null, null)); break;}
-                case CustomTypeKafkaSourceConstants.TYPE_LONG:{fields.add(new Schema.Field((String)entry.getKey(), Schema.create(Schema.Type.LONG), null, null)); break;}
-            }
-        }
-
-        Schema schema = Schema.createRecord(eventName, null, "upc.cep", false);
-        schema.setFields(fields);
-
-        return(schema);
-    }
-
-    public static byte[] datumToByteArray(Schema schema, GenericRecord datum) throws IOException {
-        GenericDatumWriter<GenericRecord> writer = new GenericDatumWriter<GenericRecord>(schema);
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try {
-            Encoder e = EncoderFactory.get().binaryEncoder(os, null);
-            writer.write(datum, e);
-            e.flush();
-            byte[] byteData = os.toByteArray();
-            return byteData;
-        } finally {
-            os.close();
-        }
-    }
     /**
      * We configure the source and generate properties for the Kafka Consumer
      * <p>

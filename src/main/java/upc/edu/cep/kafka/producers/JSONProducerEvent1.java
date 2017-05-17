@@ -25,8 +25,8 @@ import java.util.Properties;
 //  /home/osboxes/apache-flume-1.7.0-bin/bin/flume-ng agent -name remote_agent -c /home/osboxes/apache-flume-1.7.0-bin/conf -f /home/osboxes/apache-flume-1.7.0-bin/conf/5-4-2017-jsoneventtest.properties
 
 
-public class JSONProducer {
-//hi
+public class JSONProducerEvent1 {
+    //hi
     public static void main(String[] args) throws Exception {
         KafkaProducer<String, String> producer;
         try (InputStream props = Resources.getResource("producer.props").openStream()) {
@@ -55,7 +55,7 @@ public class JSONProducer {
 
             //  ProducerRecord<String, byte[]> record = new ProducerRecord<>("mytopic", bytes);
             //ProducerRecord record = new ProducerRecord<String, byte[]>("logcep", key, datumToByteArray(schema, avroRecord));
-            ProducerRecord record = new ProducerRecord<String, byte[]>("logcep", key, objectMapper.writeValueAsBytes(event1));
+            ProducerRecord record = new ProducerRecord<String, byte[]>("logcep1", key, objectMapper.writeValueAsBytes(event1));
 
 
             try {
@@ -65,7 +65,7 @@ public class JSONProducer {
                 e.printStackTrace();
             }
 
-            Thread.sleep(10000000);
+            Thread.sleep(1000);
 
         }
         //producer.close();

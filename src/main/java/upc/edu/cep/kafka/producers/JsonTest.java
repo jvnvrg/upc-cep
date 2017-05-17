@@ -5,11 +5,8 @@ package upc.edu.cep.kafka.producers;
  */
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.codehaus.jackson.map.ObjectMapper;
 
-
-import java.io.BufferedReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,11 +19,11 @@ public class JsonTest {
         ObjectMapper objectMapper = new ObjectMapper();
 
         Event2 event2 = new Event2();
-        event2.setName("dodo");
+        //   event2.setName("dodo");
         Map<String,String> aaa = new HashMap();
         aaa.put("t1","v1");
         aaa.put("t2","v2");
-        event2.setValues(aaa);
+//        event2.setValues(aaa);
 
 
         String eventString = objectMapper.writeValueAsString(event2);
