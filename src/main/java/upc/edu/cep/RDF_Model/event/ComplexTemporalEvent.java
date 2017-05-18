@@ -2,6 +2,7 @@ package upc.edu.cep.RDF_Model.event;
 
 import upc.edu.cep.RDF_Model.Operators.TemporalOperator;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ public class ComplexTemporalEvent extends ComplexEvent {
     public ComplexTemporalEvent() {
     }
 
-    public ComplexTemporalEvent(TemporalOperator temporalOperator, List<Event> events) {
+    public ComplexTemporalEvent(TemporalOperator temporalOperator, LinkedList<Event> events) {
         super(events);
         this.temporalOperator = temporalOperator;
     }
