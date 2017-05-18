@@ -2,6 +2,7 @@ package upc.edu.cep.RDF_Model;
 
 import upc.edu.cep.RDF_Model.action.Action;
 import upc.edu.cep.RDF_Model.event.Event;
+import upc.edu.cep.RDF_Model.window.Window;
 import upc.edu.cep.model.condition.Condition;
 
 
@@ -13,14 +14,16 @@ public class Rule {
     Condition condition;
     Event event;
     Action action;
+    Window window;
 
     public Rule() {
     }
 
-    public Rule(Condition condition, Event event, Action action) {
+    public Rule(Condition condition, Event event, Action action, Window window) {
         this.condition = condition;
         this.event = event;
         this.action = action;
+        this.window = window;
     }
 
     public Condition getCondition() {
@@ -45,5 +48,13 @@ public class Rule {
 
     public void setAction(Action action) {
         this.action = action;
+    }
+
+    public Window getWindow() {
+        return window;
+    }
+
+    public void setWindow(Window window) {
+        this.window = window;
     }
 }

@@ -1,19 +1,21 @@
-package upc.edu.cep.RDF_Model.Operators;
+package upc.edu.cep.RDF_Model.window;
 
+
+import upc.edu.cep.RDF_Model.Operators.TimeUnit;
 
 /**
  * Created by osboxes on 17/04/17.
  */
-public class TemportalWindow extends TemporalOperator {
+public class Window {
 
     WindowType windowType;
     int within;
     TimeUnit timeUnit;
 
-    public TemportalWindow() {
+    public Window() {
     }
 
-    public TemportalWindow(WindowType windowType, int within, TimeUnit timeUnit) {
+    public Window(WindowType windowType, int within, TimeUnit timeUnit) {
         this.windowType = windowType;
         this.within = within;
         this.timeUnit = timeUnit;

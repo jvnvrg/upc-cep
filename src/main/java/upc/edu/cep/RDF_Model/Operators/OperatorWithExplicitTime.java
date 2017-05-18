@@ -1,19 +1,20 @@
 package upc.edu.cep.RDF_Model.Operators;
 
 /**
- * Created by osboxes on 15/05/17.
+ * Created by osboxes on 18/05/17.
  */
-public class Within extends TemporalOperator {
+public class OperatorWithExplicitTime extends TemporalOperator {
 
     TimeUnit timeUnit;
     private int offset;
 
-    public Within(int offset, TimeUnit timeUnit) {
+    public OperatorWithExplicitTime(int offset, TimeUnit timeUnit, TemporalOperatorEnum operator) {
+        super(operator);
         this.offset = offset;
         this.timeUnit = timeUnit;
     }
 
-    public Within() {
+    public OperatorWithExplicitTime() {
     }
 
     public int getOffset() {

@@ -1,8 +1,11 @@
 package upc.edu.cep.RDF_Model.action;
 
 import upc.edu.cep.RDF_Model.event.SimpleEvent;
+import upc.edu.cep.model.condition.Operand;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by osboxes on 17/04/17.
@@ -11,12 +14,12 @@ public class Action {
 
     private SimpleEvent associatedEvent;
     private String assocociatedEventTopic;
-    private Map actionAttributes;
+    private List<Operand> actionAttributes;
     private ActionType actionType;
     private String serviceURL;
     private List<String> topicNames;
 
-    public Action(SimpleEvent associatedEvent, String associatedEventTopic, HashMap<String, String> actionAttributes, ActionType actionType, String serviceURL, List<String> topicNames) {
+    public Action(SimpleEvent associatedEvent, String associatedEventTopic, List<Operand> actionAttributes, ActionType actionType, String serviceURL, List<String> topicNames) {
         this.associatedEvent = associatedEvent;
         this.assocociatedEventTopic = associatedEventTopic;
         this.actionAttributes = actionAttributes;
@@ -26,7 +29,7 @@ public class Action {
     }
 
     public Action() {
-        this.actionAttributes = new HashMap<String, String>();
+        this.actionAttributes = new ArrayList<>();
         this.topicNames = new ArrayList<String>();
     }
 
@@ -46,11 +49,11 @@ public class Action {
         this.assocociatedEventTopic = assocociatedEventTopic;
     }
 
-    public Map getActionAttributes() {
+    public List<Operand> getActionAttributes() {
         return actionAttributes;
     }
 
-    public void setActionAttributes(Map actionAttributes) {
+    public void setActionAttributes(List<Operand> actionAttributes) {
         this.actionAttributes = actionAttributes;
     }
 
@@ -74,13 +77,13 @@ public class Action {
         return topicNames;
     }
 
+    public void setTopicNames(List<String> topicNames) {
+        this.topicNames = topicNames;
+    }
+
     public void setTopicNames(String[] topicNames) {
         this.topicNames = new ArrayList<String>();
         Collections.addAll(this.topicNames, topicNames);
-    }
-
-    public void setTopicNames(List<String> topicNames) {
-        this.topicNames = topicNames;
     }
 
     public void addTopics(String[] topicNames) {

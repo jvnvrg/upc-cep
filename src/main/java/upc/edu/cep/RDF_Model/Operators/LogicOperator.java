@@ -6,4 +6,18 @@ package upc.edu.cep.RDF_Model.Operators;
  */
 public class LogicOperator extends Operator {
 
+    private LogicOperatorEnum operator;
+
+    public LogicOperator(LogicOperatorEnum operator) {
+        this.operator = operator;
+    }
+
+    public LogicOperatorEnum getOperator() {
+        return operator;
+    }
+
+    public void setOperator(LogicOperatorEnum operator) {
+        this.operator = operator;
+    }
+
 }
