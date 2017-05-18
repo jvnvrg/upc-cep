@@ -5,7 +5,7 @@ import upc.edu.cep.RDF_Model.Operators.ComparasionOperator;
 /**
  * Created by osboxes on 17/04/17.
  */
-public class SimpleClause {
+public class SimpleClause extends Condition {
 
     private ComparasionOperator operator;
     private Operand operand1;
