@@ -9,6 +9,12 @@ public class ComparasionOperator extends Operator {
     private ComparasionOperatorEnum operator;
 
     public ComparasionOperator(ComparasionOperatorEnum operator) {
+        super();
+        this.operator = operator;
+    }
+
+    public ComparasionOperator(ComparasionOperatorEnum operator, String IRI) {
+        super(IRI);
         this.operator = operator;
     }
 

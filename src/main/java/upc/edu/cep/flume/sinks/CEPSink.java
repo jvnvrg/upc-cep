@@ -31,6 +31,10 @@ public class CEPSink extends AbstractSink implements Configurable {
 
     private EPStatement statement;
 
+    private boolean restart;
+
+    private String ruleID;
+
     private String monitor = "";
 
     public static Schema makeSchema(Map attributes, String eventName) {
@@ -83,17 +87,36 @@ public class CEPSink extends AbstractSink implements Configurable {
         //Creating a Statement
         String expression = "select count(a) from pattern [every a=Event1 where timer:within(2 sec)].win:time(2 hour)"; //time_batch
 
-        if (epService.getEPAdministrator().getStatement("d") == null) {
-            monitor += " what!!! ";
-            System.out.println("I you me");
-            statement = epService.getEPAdministrator().createEPL(expression, "d");
-            MyListener listener = new MyListener();
-            statement.addListener(listener);
+        if (restart) {
+            if (epService.getEPAdministrator().getStatement(ruleID) == null) {
+                monitor += "restart null";
+                statement = epService.getEPAdministrator().createEPL(expression, ruleID);
+                MyListener listener = new MyListener();
+                statement.addListener(listener);
+            } else {
+                monitor += "restart not null";
+                epService.getEPAdministrator().getStatement(ruleID).stop();
+                while (!epService.getEPAdministrator().getStatement(ruleID).isStopped()) {
+                }
+                epService.getEPAdministrator().getStatement(ruleID).destroy();
+                while (!epService.getEPAdministrator().getStatement(ruleID).isDestroyed()) {
+                }
+                statement = epService.getEPAdministrator().createEPL(expression, ruleID);
+                MyListener listener = new MyListener();
+                statement.addListener(listener);
+            }
         } else {
-            System.out.println("Stooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooop");
-            monitor += " HEEEEY!!! ";
-            this.stop();
+            if (epService.getEPAdministrator().getStatement(ruleID) == null) {
+                monitor += "no restart null";
+                statement = epService.getEPAdministrator().createEPL(expression, ruleID);
+                MyListener listener = new MyListener();
+                statement.addListener(listener);
+            } else {
+                monitor += "no restart not null";
+                this.stop();
+            }
         }
+
 //or test
         //EPStatement statement = epService.getEPAdministrator().createPattern("every (spike= Event1 or error= Event2)");
 //        String expression = "select * from pattern [every (spike= Event1 or error= Event2)]"; //time_batch
@@ -125,13 +148,17 @@ public class CEPSink extends AbstractSink implements Configurable {
                 Map attributes = new HashMap<>();
                 for (String attribute : atts) {
                     attributes.put(attribute, context.getString(eventName + "." + attribute + "." + CEPSinkConstants.ATTRIBUTE_TYPE));
-                    System.out.println("att: **"+attribute+"*******************");
-                    System.out.println("type: **"+attributes.get(attribute)+"*******************");
-                    System.out.println("eventName: **"+eventName+"*******************");
+                    System.out.println("att: **" + attribute + "*******************");
+                    System.out.println("type: **" + attributes.get(attribute) + "*******************");
+                    System.out.println("eventName: **" + eventName + "*******************");
                 }
+                restart = context.getBoolean(CEPSinkConstants.RESTART, false);
+                ruleID = context.getString(CEPSinkConstants.RULE_ID);
                 events.put(eventName, new SinkEvent(attributes, attributes.keySet(), makeSchema(attributes, eventName)));
-                ConfigurationEventTypeAvro avroEvent = new ConfigurationEventTypeAvro(events.get(eventName).getSchema());
-                epService.getEPAdministrator().getConfiguration().addEventTypeAvro(eventName, avroEvent);
+                if (restart || !epService.getEPAdministrator().getConfiguration().isEventTypeExists(eventName)) {
+                    ConfigurationEventTypeAvro avroEvent = new ConfigurationEventTypeAvro(events.get(eventName).getSchema());
+                    epService.getEPAdministrator().getConfiguration().addEventTypeAvro(eventName, avroEvent);
+                }
             }
         }
 
@@ -142,7 +169,7 @@ public class CEPSink extends AbstractSink implements Configurable {
     public synchronized void stop() {
         super.stop();
         //epService.removeAllStatementStateListeners();
-        monitor = " old??";
+        //monitor = " old??";
 //
 //        epService.removeAllServiceStateListeners();
 //        epService.removeAllStatementStateListeners();
@@ -175,9 +202,9 @@ public class CEPSink extends AbstractSink implements Configurable {
                 Decoder decoder = DecoderFactory.get().binaryDecoder(body, null);
                 GenericRecord payload2 = null;
                 payload2 = reader.read(null, decoder);
-                System.out.println("Message received : " + payload2.get("mylog"));
-                System.out.println("Message received : " + payload2.get("yourlog"));
-                epService.getEPRuntime().sendEventAvro(payload2,eventName);
+                //System.out.println("Message received : " + payload2.get("mylog"));
+                //System.out.println("Message received : " + payload2.get("yourlog"));
+                epService.getEPRuntime().sendEventAvro(payload2, eventName);
                 /*System.out.println(headers.get("hostname"));
                 System.out.println(Long.parseLong(headers.get("timestamp")));*/
                 // Sending events

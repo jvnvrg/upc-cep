@@ -6,13 +6,15 @@ package upc.edu.cep.RDF_Model.condition;
 public class FunctionParameter {
     private Operand operand;
     private int order;
+    private String IRI;
 
     public FunctionParameter() {
     }
 
-    public FunctionParameter(Operand operand, int order) {
+    public FunctionParameter(Operand operand, int order, String IRI) {
         this.operand = operand;
         this.order = order;
+        this.IRI = IRI;
     }
 
     public Operand getOperand() {
@@ -29,5 +31,13 @@ public class FunctionParameter {
 
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public String getIRI() {
+        return IRI;
+    }
+
+    public void setIRI(String IRI) {
+        this.IRI = IRI;
     }
 }

@@ -8,6 +8,7 @@ import upc.edu.cep.RDF_Model.Operators.TimeUnit;
  */
 public class Window {
 
+    String IRI;
     WindowType windowType;
     int within;
     TimeUnit timeUnit;
@@ -15,7 +16,8 @@ public class Window {
     public Window() {
     }
 
-    public Window(WindowType windowType, int within, TimeUnit timeUnit) {
+    public Window(WindowType windowType, int within, TimeUnit timeUnit, String IRI) {
+        this.IRI = IRI;
         this.windowType = windowType;
         this.within = within;
         this.timeUnit = timeUnit;
@@ -43,6 +45,14 @@ public class Window {
 
     public void setTimeUnit(TimeUnit timeUnit) {
         this.timeUnit = timeUnit;
+    }
+
+    public String getIRI() {
+        return IRI;
+    }
+
+    public void setIRI(String IRI) {
+        this.IRI = IRI;
     }
 
     public enum WindowType {

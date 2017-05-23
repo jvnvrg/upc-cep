@@ -11,6 +11,7 @@ import upc.edu.cep.model.condition.Condition;
  */
 public class Rule {
 
+    String IRI;
     Condition condition;
     Event event;
     Action action;
@@ -19,7 +20,8 @@ public class Rule {
     public Rule() {
     }
 
-    public Rule(Condition condition, Event event, Action action, Window window) {
+    public Rule(Condition condition, Event event, Action action, Window window, String IRI) {
+        this.IRI = IRI;
         this.condition = condition;
         this.event = event;
         this.action = action;
@@ -56,5 +58,13 @@ public class Rule {
 
     public void setWindow(Window window) {
         this.window = window;
+    }
+
+    public String getIRI() {
+        return IRI;
+    }
+
+    public void setIRI(String IRI) {
+        this.IRI = IRI;
     }
 }

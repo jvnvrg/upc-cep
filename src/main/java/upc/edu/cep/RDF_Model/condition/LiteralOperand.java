@@ -11,11 +11,23 @@ public class LiteralOperand extends Operand {
     private String value;
 
     public LiteralOperand(AttributeType type, String value) {
+        super();
         this.type = type;
         this.value = value;
     }
 
     public LiteralOperand() {
+        super();
+    }
+
+    public LiteralOperand(AttributeType type, String value, String IRI) {
+        super(IRI);
+        this.type = type;
+        this.value = value;
+    }
+
+    public LiteralOperand(String IRI) {
+        super(IRI);
     }
 
     public AttributeType getType() {

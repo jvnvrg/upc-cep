@@ -14,6 +14,7 @@ public class FunctionOperand extends Operand {
     private List<FunctionParameter> parameters;
 
     public FunctionOperand(String functionName, List<FunctionParameter> parameters, String functionURL, Method functionMethod) {
+        super();
         this.functionName = functionName;
         this.functionURL = functionURL;
         this.functionMethod = functionMethod;
@@ -22,6 +23,20 @@ public class FunctionOperand extends Operand {
 
 
     public FunctionOperand() {
+        super();
+    }
+
+    public FunctionOperand(String functionName, List<FunctionParameter> parameters, String functionURL, Method functionMethod, String IRI) {
+        super(IRI);
+        this.functionName = functionName;
+        this.functionURL = functionURL;
+        this.functionMethod = functionMethod;
+        this.parameters = parameters;
+    }
+
+
+    public FunctionOperand(String IRI) {
+        super(IRI);
     }
 
     public List<FunctionParameter> getParameters() {

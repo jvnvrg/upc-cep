@@ -12,9 +12,22 @@ public class SimpleClause extends Condition {
     private Operand operand2;
 
     public SimpleClause() {
+        super();
     }
 
     public SimpleClause(ComparasionOperator operator, Operand operand1, Operand operand2) {
+        super();
+        this.operator = operator;
+        this.operand1 = operand1;
+        this.operand2 = operand2;
+    }
+
+    public SimpleClause(String IRI) {
+        super(IRI);
+    }
+
+    public SimpleClause(ComparasionOperator operator, Operand operand1, Operand operand2, String IRI) {
+        super(IRI);
         this.operator = operator;
         this.operand1 = operand1;
         this.operand2 = operand2;

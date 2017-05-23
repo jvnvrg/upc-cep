@@ -9,6 +9,12 @@ public class LogicOperator extends Operator {
     private LogicOperatorEnum operator;
 
     public LogicOperator(LogicOperatorEnum operator) {
+        super();
+        this.operator = operator;
+    }
+
+    public LogicOperator(LogicOperatorEnum operator, String IRI) {
+        super(IRI);
         this.operator = operator;
     }
 

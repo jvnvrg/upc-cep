@@ -8,16 +8,29 @@ import java.util.List;
 /**
  * Created by osboxes on 17/04/17.
  */
-public abstract class ComplexPredicate {
+public class ComplexPredicate extends Condition {
 
-    List<Condition> conditions;
-    LogicOperator operator;
+    protected List<Condition> conditions;
+    protected LogicOperator operator;
 
     public ComplexPredicate() {
+        super();
         conditions = new ArrayList<>();
     }
 
     public ComplexPredicate(List<Condition> conditions, LogicOperator operator) {
+        super();
+        this.conditions = conditions;
+        this.operator = operator;
+    }
+
+    public ComplexPredicate(String IRI) {
+        super(IRI);
+        conditions = new ArrayList<>();
+    }
+
+    public ComplexPredicate(List<Condition> conditions, LogicOperator operator, String IRI) {
+        super(IRI);
         this.conditions = conditions;
         this.operator = operator;
     }

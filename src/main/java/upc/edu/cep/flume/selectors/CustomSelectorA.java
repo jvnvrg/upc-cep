@@ -105,18 +105,13 @@ public class CustomSelectorA extends AbstractChannelSelector {
                     String opt2= payload2.get(attribute.getAttName()).toString();
                     switch (key) {
                         case "eq": {
-                            //System.out.println("111111111111111" + opt1+ "333333333333333");
-                            //System.out.println("222222222222222" + opt2 + "222222222222222");
-                            //System.out.println("4444444444" + opt1.equals(opt2) + "444444444");
                             if (!opt1.equals(opt2)) {
                                 possible = false;
-                                //System.out.println("aaaaaaaaaaaaaaaaaa");
                             }
                             break;
                         }
                         case "nq": {
                             if (opt1.equals(opt2)) {
-                                ///System.out.println("bbbbbbbbbbbbbbbbb");
                                 possible = false;
                             }
                             break;
@@ -125,28 +120,24 @@ public class CustomSelectorA extends AbstractChannelSelector {
                             if (Integer.parseInt(opt1) >= Integer.parseInt(opt2)) {
                                 System.out.println(Integer.parseInt(attribute.getOperations().get(key)));
                                 possible = false;
-                                ///System.out.println("cccccccccccccc");
                             }
                             break;
                         }
                         case "ge": {
                             if (Integer.parseInt(opt1) > Integer.parseInt(opt2)) {
                                 possible = false;
-                                //System.out.println("ddddddddddddddddd");
                             }
                             break;
                         }
                         case "lt": {
                             if (Integer.parseInt(opt1) <= Integer.parseInt(opt2)) {
                                 possible = false;
-                                //System.out.println("eeeeeeeeeeeeeeeeee");
                             }
                             break;
                         }
                         case "le": {
                             if (Integer.parseInt(opt1) < Integer.parseInt(opt2)) {
                                 possible = false;
-                                //System.out.println("ffffffffffffffffffff");
                             }
                             break;
                         }
@@ -154,7 +145,6 @@ public class CustomSelectorA extends AbstractChannelSelector {
                 }
             }
             if (possible) {
-                //System.out.println("3333333333");
                 channels.add(channel);
             }
         }

@@ -5,5 +5,20 @@ package upc.edu.cep.RDF_Model.condition;
  */
 public abstract class Condition {
 
+    protected String IRI;
 
+    public Condition(String IRI) {
+        this.IRI = IRI;
+    }
+
+    public Condition() {
+    }
+
+    public String getIRI() {
+        return IRI;
+    }
+
+    public void setIRI(String IRI) {
+        this.IRI = IRI;
+    }
 }
