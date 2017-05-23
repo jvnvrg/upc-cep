@@ -1,6 +1,8 @@
 package upc.edu.cep.sm4cep;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
@@ -40,38 +42,20 @@ public class Sm4cepParser {
 	public Rule getRule (String ruleIRI) {
 		Rule rule = new Rule();
 		
-        String qGetRule = 
-
-        		"PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" + 
-        		
-        		" SELECT DISTINCT ?windowKind ?windowUnit \n" +
-        		" WHERE { \n" +  
-        		ruleIRI + " a sm4cep:Rule . \n" +
-        		ruleIRI + " sm4cep:hasWindow ?w . \n" +
-        		"?w sm4cep:hasWindowAttribute ?wa . \n" +
-        		ruleIRI + " ?p ?o . \n" +
-        		"} ";
-        System.out.println(qGetRule);
-        	
-        ResultSet results = this.runAQuery(qGetRule, endpoint); 
-        
-        while ( results.hasNext() ) {        
-      	  	QuerySolution soln = results.nextSolution() ;
-      	  
-      	  	RDFNode queryPropertyNode = soln.get("p");
-      	  	String property = formatIRI(queryPropertyNode.toString());
-      	  	
-      	  	RDFNode queryObjectNode = soln.get("o");
-      	  	String object = formatIRI(queryObjectNode.toString());
-
-      	  	System.out.println("Property p: " + property + " with object o: " + object);
-      	  	
-        }
+		try{
+			Window window = this.getWindow(ruleIRI);
+			rule.setWindow(window);
+		} 
+		catch (WindowException we){
+			System.out.println("The rule has the following window exception: \n" + we);
+		}
+		
 		
 		return rule;
 	}
 	
-	// get window from the SM4CEP triples (SM4CEP -> local java classes)
+	// get Window part from the SM4CEP triples (SM4CEP -> local java classes)
+	
 	public Window getWindow (String ruleIRI) throws WindowException {
 		Window window = new Window();
 		
@@ -205,7 +189,138 @@ public class Sm4cepParser {
 		
 		return windowUnit;
 	}
+	
+	// get Event part of a Rule
+	
+	public Event getEvent(String ruleIRI) {
+		Event event = null;
+				
+		return event;
+	}
+	
+	// get simple event 
+	public SimpleEvent getSimpleEvent(String eventIRI) {
+		SimpleEvent simpleEvent = new SimpleEvent();
+		simpleEvent.setAttributes(new LinkedList<Attribute>());
+		
+		simpleEvent.setEventName(eventIRI);// TODO: check if there needs to be the event IRI and the event name
+		
+        String qGetSimpleEvent = 
 
+        		"PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" + 
+        		
+        		" SELECT DISTINCT ?eventAttribute \n" +
+        		" WHERE { \n" +  
+        		eventIRI + " sm4cep:hasEventAttribute ?eventAttribute . \n" +
+        		"?eventAttribute a sm4cep:EventAttribute . \n" +
+        		"} ";
+        	
+        ResultSet results = this.runAQuery(qGetSimpleEvent, endpoint); 
+        
+        
+        while ( results.hasNext() ) {        
+      	  	QuerySolution soln = results.nextSolution() ;
+      	  
+      	  	RDFNode eventAttributeNode = soln.get("eventAttribute");
+      	  	String eventAttributeString = formatIRI(eventAttributeNode.toString());
+      	  	
+      	  	Attribute eventAttribute = new Attribute(eventAttributeString, AttributeType.TYPE_STRING); // TODO: here there can be smarter deciding but then we need instances or explicit info about this
+      	  	simpleEvent.addAttribute(eventAttribute);
+        }
+
+		return simpleEvent;
+	}
+	
+	// get complex event
+	public ComplexTemporalEvent getComplexTemporalEvent(String eventIRI) {
+		ComplexTemporalEvent complexTemporalEvent = new ComplexTemporalEvent() ;
+		//complexTemporalEvent.setEvents(new LinkedList<Event>()); // TODO: remove this if a new constructor is added that automatically does this
+		
+        String qGetTemporalOperator = 
+
+        		"PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" + 
+        		"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+        		
+        		" SELECT DISTINCT ?temporalOperator ?offset \n" +
+        		" WHERE { \n" +  
+        		eventIRI + " sm4cep:usesTemporalOperator ?temporalOperator . \n" +
+        		"?temporalOperator a ?midlewareClass . \n" +
+        		"?midlewareClass rdfs:subClassOf sm4cep:TemporalOperator . \n" +
+        		"OPTIONAL {?temporalOperator sm4cep:hasOffset ?offset } \n" +
+        		"} ";
+        	
+        ResultSet results = this.runAQuery(qGetTemporalOperator, endpoint); 
+        
+        
+        while ( results.hasNext() ) {        
+      	  	QuerySolution soln = results.nextSolution() ;
+      	  
+      	  	RDFNode temporalOperatorNode = soln.get("temporalOperator");
+      	  	String temporalOperatorString = formatIRI(temporalOperatorNode.toString());
+      	  	
+      	  	RDFNode offsetNode = soln.get("offset");
+    	  	String offsetString = formatIRI(offsetNode.toString());
+      	  	
+      	  	if (temporalOperatorString.equalsIgnoreCase("sm4cep:WithIn") || 
+      	  		temporalOperatorString.equalsIgnoreCase("http://www.essi.upc.edu/~jvarga/sm4cep/WithIn") ||
+      	  			temporalOperatorString.equalsIgnoreCase("<http://www.essi.upc.edu/~jvarga/sm4cep/WithIn>")) {
+    	  		complexTemporalEvent.setTemporalOperator(new TemporalOperator(TemporalOperatorEnum.Within),); 
+    	  	}
+    	  	else if (temporalOperatorString.equalsIgnoreCase("sm4cep:Sequence") || 
+    	  			temporalOperatorString.equalsIgnoreCase("http://www.essi.upc.edu/~jvarga/sm4cep/Sequence") ||
+    	  				temporalOperatorString.equalsIgnoreCase("<http://www.essi.upc.edu/~jvarga/sm4cep/Sequence>")) {
+    	  		complexTemporalEvent.setTemporalOperator(new TemporalOperator(TemporalOperatorEnum.Sequence)); 
+        }
+
+		return simpleEvent;
+	}
+	
+	// get the list of events for a complex event
+	public LinkedList<Event> getComplexEventList(String eventIRI) {
+		
+		LinkedList<Event> eventList = new LinkedList<Event>();
+		
+        String qGetEventList = 
+
+        		"PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" + 
+        		
+        		" SELECT DISTINCT ?event ?order \n" +
+        		" WHERE { \n" +  
+        		eventIRI + " sm4cep:containsEvent ?includedEvent . \n" +
+        		"?includedEvent sm4cep:representsEvent ?event . \n" +
+        		"?includedEvent sm4cep:hasEventOrder ?order . \n" +
+        		"} ";
+        	
+        ResultSet results = this.runAQuery(qGetEventList, endpoint); 
+        
+        
+        while ( results.hasNext() ) {        
+      	  	QuerySolution soln = results.nextSolution() ;
+      	  
+      	  	RDFNode eventNode = soln.get("event");
+      	  	String eventString = formatIRI(eventNode.toString());
+      	  	
+      	  	RDFNode orderNode = soln.get("order");
+      	  	int order = -1;
+      	  	try{
+      	  		order = orderNode.asLiteral().getInt();
+      	  	}
+      	  	catch (Exception e) {
+      	  		
+      	  		System.out.println("Error with parsing event list element order: " + e);
+      	  	}
+      	  	
+      	  	Event eventInList = this.getEvent(eventString); // this will be recursive call until it is resolved with simple elements or a complex element that has no elements
+      	  	try {
+      	  		eventList.add(order, eventInList);
+      	  	}
+      	  	catch (IndexOutOfBoundsException ioobx){
+      	  		eventList.add(eventInList); // if the element doesn't have element specified or is greater than the current number of elements in the list, it will be added to the end
+      	  	}
+        }
+
+		return eventList;
+	}
 	
 	private ResultSet runAQuery(String sparqlQuery, String endpoint) {		
 		Query query = QueryFactory.create(sparqlQuery); 
@@ -232,8 +347,8 @@ public class Sm4cepParser {
 		this.endpoint = endpoint;
 	}
 
-	// printing methods
-	public String printWindow(Window w){
+	// stringing methods
+	public String stringWindow(Window w){
 		String text = "";
 		text += "Window with values: \n";
 		text += "  window kind: " + w.getWindowType().toString() + "\n";
@@ -241,6 +356,18 @@ public class Sm4cepParser {
 			text += "  window unit: " + w.getTimeUnit().toString() + "\n";
 		else
 			text += " window unit: event unit";
+		
+		return text;
+	}
+	
+	public String stringSimpleEvent(SimpleEvent se) {
+		String text = "";
+		text += "Simple event: " + se.getEventName() + "\n";
+		List<Attribute> attributes = se.getAttributes();
+		int size = attributes.size();
+		for(int i = 0; i < size; i++) {
+			text += "  has attribute: " + attributes.get(i).getName() + "\n";
+		}
 		
 		return text;
 	}
@@ -264,8 +391,16 @@ public class Sm4cepParser {
 				
 				//p1.getWindow(ruleIRI);
 				
+				/*
 				ruleIRI = p1.formatIRI(ruleIRI);
-				System.out.println(p1.printWindow(p1.getWindow(ruleIRI)));
+				//System.out.println(p1.stringWindow(p1.getWindow(ruleIRI)));
+				if (p1.getRule(ruleIRI).getWindow() != null)
+					System.out.println(p1.stringWindow(p1.getRule(ruleIRI).getWindow()));
+				else 
+					System.out.println("Rule has no window!");
+				*/
+				String eventIRI = p1.formatIRI(ruleIRI);
+				System.out.println(p1.stringSimpleEvent(p1.getSimpleEvent(eventIRI)));
 		
 			} catch (Exception e){
 				System.out.println("Error:\n" + e);
