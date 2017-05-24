@@ -137,6 +137,8 @@ public class CEPSink extends AbstractSink implements Configurable {
 
         Configuration config = new Configuration();
         //config.addEventType("com.edu.cep.events.LogEvent",LogEvent.class.getName());
+        String rulesStatment = context.getString("deletedRules");
+
         epService = EPServiceProviderManager.getDefaultProvider(config);
         events = new HashMap<>();
         String[] eventNames = context.getString(CEPSinkConstants.EVENT_NAME).trim().split(" ");
@@ -161,8 +163,23 @@ public class CEPSink extends AbstractSink implements Configurable {
                 }
             }
         }
+        if (rulesStatment != null) {
+            String[] rules = rulesStatment.trim().split(" ");
+            if (rules.length > 0) {
+                deleteRules(rules);
+            }
+        }
+    }
 
+    private void deleteRules(String[] rules) {
+        for (String rule : rules) {
+            EPStatement statement = epService.getEPAdministrator().getStatement(rule);
+            if (statement != null && !statement.isDestroyed()) {
+                epService.getEPAdministrator().getStatement(rule).stop();
 
+                epService.getEPAdministrator().getStatement(rule).destroy();
+            }
+        }
     }
 
     @Override
