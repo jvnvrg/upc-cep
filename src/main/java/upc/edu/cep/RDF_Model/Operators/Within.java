@@ -3,27 +3,28 @@ package upc.edu.cep.RDF_Model.Operators;
 /**
  * Created by osboxes on 18/05/17.
  */
-public class OperatorWithExplicitTime extends TemporalOperator {
+public class Within extends TemporalOperator {
 
     TimeUnit timeUnit;
     private int offset;
 
-    public OperatorWithExplicitTime(int offset, TimeUnit timeUnit, TemporalOperatorEnum operator) {
-        super(operator);
+    public Within(int offset, TimeUnit timeUnitr) {
+        super(TemporalOperatorEnum.Within);
         this.offset = offset;
         this.timeUnit = timeUnit;
     }
 
-    public OperatorWithExplicitTime() {
+    public Within() {
+        super(TemporalOperatorEnum.Within);
     }
 
-    public OperatorWithExplicitTime(int offset, TimeUnit timeUnit, TemporalOperatorEnum operator, String IRI) {
-        super(operator, IRI);
+    public Within(int offset, TimeUnit timeUnit, String IRI) {
+        super(TemporalOperatorEnum.Within, IRI);
         this.offset = offset;
         this.timeUnit = timeUnit;
     }
 
-    public OperatorWithExplicitTime(String IRI) {
+    public Within(String IRI) {
         super(IRI);
     }
 

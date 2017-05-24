@@ -26,6 +26,7 @@ public class CEPSink extends AbstractSink implements Configurable {
 
     private EPServiceProvider epService;
 
+    private String expression;
 
     private Map<String, SinkEvent> events;
 
@@ -85,7 +86,7 @@ public class CEPSink extends AbstractSink implements Configurable {
 //        epService = EPServiceProviderManager.getDefaultProvider(config);
 
         //Creating a Statement
-        String expression = "select count(a) from pattern [every a=Event1 where timer:within(2 sec)].win:time(2 hour)"; //time_batch
+        //String expression = "select count(a) from pattern [every a=Event1 where timer:within(2 sec)].win:time(2 hour)"; //time_batch
 
         if (restart) {
             if (epService.getEPAdministrator().getStatement(ruleID) == null) {
@@ -137,7 +138,8 @@ public class CEPSink extends AbstractSink implements Configurable {
 
         Configuration config = new Configuration();
         //config.addEventType("com.edu.cep.events.LogEvent",LogEvent.class.getName());
-        String rulesStatment = context.getString("deletedRules");
+        String rulesStatment = context.getString(CEPSinkConstants.DELETED_RULES);
+        expression = context.getString(CEPSinkConstants.EXPRESSION);
 
         epService = EPServiceProviderManager.getDefaultProvider(config);
         events = new HashMap<>();

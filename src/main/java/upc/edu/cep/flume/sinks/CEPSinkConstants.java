@@ -3,19 +3,21 @@ package upc.edu.cep.flume.sinks;
 /**
  * Created by osboxes on 02/05/17.
  */
-public class CEPSinkConstants {
+class CEPSinkConstants {
 
-    protected static final String EVENT_TYPE = "event.type";
-    protected static final String EVENT_NAME = "event.names";
-    protected static final String ATTRIBUTE_TYPE = "type";
-    protected static final String EVENT_ATTRIBUTES = "attributes";
-    protected static final String RESTART = "restart";
-    protected static final String RULE_ID = "ruleID";
-    protected static final String TYPE_INT = "int";
-    protected static final String TYPE_STRING = "string";
-    protected static final String TYPE_DOUBLE = "double";
-    protected static final String TYPE_BOOLEAN = "boolean";
-    protected static final String TYPE_FLOAT = "float";
-    protected static final String TYPE_BYTES = "bytes";
-    protected static final String TYPE_LONG = "long";
+    static final String EVENT_TYPE = "event.type";
+    static final String EVENT_NAME = "event.names";
+    static final String ATTRIBUTE_TYPE = "type";
+    static final String DELETED_RULES = "deletedRules";
+    static final String EXPRESSION = "expression";
+    static final String EVENT_ATTRIBUTES = "attributes";
+    static final String RESTART = "restart";
+    static final String RULE_ID = "ruleID";
+    static final String TYPE_INT = "int";
+    static final String TYPE_STRING = "string";
+    static final String TYPE_DOUBLE = "double";
+    static final String TYPE_BOOLEAN = "boolean";
+    static final String TYPE_FLOAT = "float";
+    static final String TYPE_BYTES = "bytes";
+    static final String TYPE_LONG = "long";
 }

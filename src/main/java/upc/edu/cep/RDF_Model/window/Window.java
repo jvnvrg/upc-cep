@@ -8,10 +8,10 @@ import upc.edu.cep.RDF_Model.Operators.TimeUnit;
  */
 public class Window {
 
-    String IRI;
-    WindowType windowType;
-    int within;
-    TimeUnit timeUnit;
+    private String IRI;
+    private WindowType windowType;
+    private int within;
+    private TimeUnit timeUnit;
 
     public Window() {
     }
@@ -53,10 +53,5 @@ public class Window {
 
     public void setIRI(String IRI) {
         this.IRI = IRI;
-    }
-
-    public enum WindowType {
-        TUMBLING_WINDOW,
-        SLIDING_WINDOW
     }
 }
