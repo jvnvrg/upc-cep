@@ -132,6 +132,23 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.6</version>
         </dependency>
+		
+<!-- dependencies added by Jovan  -->		
+		<dependency>
+		    <groupId>org.apache.jena</groupId>
+		    <artifactId>apache-jena-libs</artifactId>
+		    <type>pom</type>
+		    <version>3.3.0</version>
+		</dependency>
+		
+<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+		<dependency>
+		    <groupId>org.apache.httpcomponents</groupId>
+		    <artifactId>httpclient</artifactId>
+		    <version>4.5.3</version>
+		</dependency>
+
+
     </dependencies>
 
     <!-- Organization Information -->
