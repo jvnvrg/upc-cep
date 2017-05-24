@@ -6,7 +6,6 @@ package upc.edu.cep.kafka.producers;
 
 import com.google.common.io.Resources;
 import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.Encoder;
@@ -36,25 +35,13 @@ public class JSONProducerEvent1 {
         }
         ObjectMapper objectMapper = new ObjectMapper();
         String key = "key1";
-        String userSchema = "{\"type\":\"record\"," +
-                "\"name\":\"myrecord\"," +
-                "\"fields\":[{\"name\":\"mylog\",\"type\":\"string\"},{\"name\":\"yourlog\",\"type\":\"string\"}]}";
-        Schema.Parser parser = new Schema.Parser();
-        Schema schema = parser.parse(userSchema);
         int i = 0;
         while (true) {
-
-            GenericRecord avroRecord = new GenericData.Record(schema);
-            avroRecord.put("mylog", "v1");
-            avroRecord.put("yourlog", "value2");
-            //  byte[] bytes = recordInjection.apply(avroRecord);
 
             Event1 event1 = new Event1();
             event1.setMylog("v1");
             event1.setYourlog("v2");
 
-            //  ProducerRecord<String, byte[]> record = new ProducerRecord<>("mytopic", bytes);
-            //ProducerRecord record = new ProducerRecord<String, byte[]>("logcep", key, datumToByteArray(schema, avroRecord));
             ProducerRecord record = new ProducerRecord<String, byte[]>("logcep1", key, objectMapper.writeValueAsBytes(event1));
 
 

@@ -9,6 +9,8 @@ public class CEPSinkConstants {
     protected static final String EVENT_NAME = "event.names";
     protected static final String ATTRIBUTE_TYPE = "type";
     protected static final String EVENT_ATTRIBUTES = "attributes";
+    protected static final String RESTART = "restart";
+    protected static final String RULE_ID = "ruleID";
     protected static final String TYPE_INT = "int";
     protected static final String TYPE_STRING = "string";
     protected static final String TYPE_DOUBLE = "double";

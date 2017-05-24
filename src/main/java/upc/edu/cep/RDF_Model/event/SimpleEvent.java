@@ -1,5 +1,6 @@
 package upc.edu.cep.RDF_Model.event;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,6 +11,29 @@ public class SimpleEvent extends Event {
     private String eventName;
 
     private List<Attribute> attributes;
+
+
+    public SimpleEvent(String IRI, String eventName, List<Attribute> attributes) {
+        super(IRI);
+        this.eventName = eventName;
+        this.attributes = attributes;
+    }
+
+    public SimpleEvent(String eventName, List<Attribute> attributes) {
+        super();
+        this.eventName = eventName;
+        this.attributes = attributes;
+    }
+
+    public SimpleEvent(String IRI) {
+        super(IRI);
+        this.attributes = new ArrayList<>();
+    }
+
+    public SimpleEvent() {
+        super();
+        this.attributes = new ArrayList<>();
+    }
 
     public void addAttribute(Attribute attribute) {
         attributes.add(attribute);

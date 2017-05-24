@@ -17,6 +17,16 @@ public class OperatorWithExplicitTime extends TemporalOperator {
     public OperatorWithExplicitTime() {
     }
 
+    public OperatorWithExplicitTime(int offset, TimeUnit timeUnit, TemporalOperatorEnum operator, String IRI) {
+        super(operator, IRI);
+        this.offset = offset;
+        this.timeUnit = timeUnit;
+    }
+
+    public OperatorWithExplicitTime(String IRI) {
+        super(IRI);
+    }
+
     public int getOffset() {
         return offset;
     }

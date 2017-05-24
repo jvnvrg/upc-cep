@@ -10,4 +10,12 @@ public class OperatorWithImplicitTime extends TemporalOperator {
 
     public OperatorWithImplicitTime() {
     }
+
+    public OperatorWithImplicitTime(TemporalOperatorEnum operator, String IRI) {
+        super(operator, IRI);
+    }
+
+    public OperatorWithImplicitTime(String IRI) {
+        super(IRI);
+    }
 }
