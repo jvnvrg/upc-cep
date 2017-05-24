@@ -232,7 +232,7 @@ public class Sm4cepParser {
 	}
 	
 	// get complex event
-	public ComplexTemporalEvent getComplexTemporalEvent(String eventIRI) {
+/*	public ComplexTemporalEvent getComplexTemporalEvent(String eventIRI) {
 		ComplexTemporalEvent complexTemporalEvent = new ComplexTemporalEvent() ;
 		//complexTemporalEvent.setEvents(new LinkedList<Event>()); // TODO: remove this if a new constructor is added that automatically does this
 		
@@ -274,7 +274,7 @@ public class Sm4cepParser {
 
 		return simpleEvent;
 	}
-	
+	*/
 	// get the list of events for a complex event
 	public LinkedList<Event> getComplexEventList(String eventIRI) {
 		
