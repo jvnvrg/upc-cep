@@ -1,7 +1,7 @@
 package upc.edu.cep.RDF_Model.action;
 
+import upc.edu.cep.RDF_Model.condition.Operand;
 import upc.edu.cep.RDF_Model.event.SimpleEvent;
-import upc.edu.cep.model.condition.Operand;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,13 +77,13 @@ public class Action {
         return topicNames;
     }
 
-    public void setTopicNames(List<String> topicNames) {
-        this.topicNames = topicNames;
-    }
-
     public void setTopicNames(String[] topicNames) {
         this.topicNames = new ArrayList<String>();
         Collections.addAll(this.topicNames, topicNames);
+    }
+
+    public void setTopicNames(List<String> topicNames) {
+        this.topicNames = topicNames;
     }
 
     public void addTopics(String[] topicNames) {

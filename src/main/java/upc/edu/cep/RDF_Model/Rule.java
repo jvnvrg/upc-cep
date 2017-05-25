@@ -1,9 +1,9 @@
 package upc.edu.cep.RDF_Model;
 
 import upc.edu.cep.RDF_Model.action.Action;
+import upc.edu.cep.RDF_Model.condition.Condition;
 import upc.edu.cep.RDF_Model.event.Event;
 import upc.edu.cep.RDF_Model.window.Window;
-import upc.edu.cep.model.condition.Condition;
 
 
 /**
