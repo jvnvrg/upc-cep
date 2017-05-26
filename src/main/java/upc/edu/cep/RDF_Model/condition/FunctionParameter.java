@@ -1,9 +1,15 @@
 package upc.edu.cep.RDF_Model.condition;
 
+import upc.edu.cep.Interpreter.Interpreter;
+import upc.edu.cep.Interpreter.InterpreterContext;
+import upc.edu.cep.Interpreter.InterpreterException;
+
+import java.util.Map;
+
 /**
  * Created by osboxes on 15/05/17.
  */
-public class FunctionParameter {
+public class FunctionParameter implements Interpreter, Comparable<FunctionParameter> {
     private Operand operand;
     private int order;
     private String IRI;
@@ -39,5 +45,22 @@ public class FunctionParameter {
 
     public void setIRI(String IRI) {
         this.IRI = IRI;
+    }
+
+    @Override
+    public String interpret(InterpreterContext context) throws InterpreterException {
+        return operand.interpret(context);
+    }
+
+    @Override
+    public Map<String, String> interpretToMap(InterpreterContext context) throws InterpreterException {
+        return operand.interpretToMap(context);
+    }
+
+    @Override
+    public int compareTo(FunctionParameter o2) {
+        return this.order < o2.order ? -1
+                : this.order > o2.order ? 1
+                : 0;
     }
 }

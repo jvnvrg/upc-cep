@@ -1,6 +1,11 @@
 package upc.edu.cep.RDF_Model.Operators;
 
 
+import upc.edu.cep.Interpreter.InterpreterContext;
+import upc.edu.cep.Interpreter.InterpreterException;
+
+import java.util.Map;
+
 /**
  * Created by osboxes on 15/05/17.
  */
@@ -26,4 +31,41 @@ public class LogicOperator extends Operator {
         this.operator = operator;
     }
 
+    @Override
+    public String interpret(InterpreterContext context) throws InterpreterException {
+        switch (context) {
+            case ESPER: {
+                switch (operator) {
+                    case Conjunction: {
+                        return "AND";
+                    }
+                    case Disjunction: {
+                        return "OR";
+                    }
+                    case Negation: {
+                        return "NOT";
+                    }
+                }
+            }
+            default: {
+                switch (operator) {
+                    case Conjunction: {
+                        return "AND";
+                    }
+                    case Disjunction: {
+                        return "OR";
+                    }
+                    case Negation: {
+                        return "NOT";
+                    }
+                }
+            }
+        }
+        throw new InterpreterException("not supported");
+    }
+
+    @Override
+    public Map<String, String> interpretToMap(InterpreterContext context) throws InterpreterException {
+        throw new InterpreterException("not supported");
+    }
 }

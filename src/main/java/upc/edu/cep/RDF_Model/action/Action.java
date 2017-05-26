@@ -1,16 +1,17 @@
 package upc.edu.cep.RDF_Model.action;
 
+import upc.edu.cep.Interpreter.Interpreter;
+import upc.edu.cep.Interpreter.InterpreterContext;
+import upc.edu.cep.Interpreter.InterpreterException;
 import upc.edu.cep.RDF_Model.condition.Operand;
 import upc.edu.cep.RDF_Model.event.SimpleEvent;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by osboxes on 17/04/17.
  */
-public class Action {
+public class Action implements Interpreter {
 
     private SimpleEvent associatedEvent;
     private String assocociatedEventTopic;
@@ -18,19 +19,29 @@ public class Action {
     private ActionType actionType;
     private String serviceURL;
     private List<String> topicNames;
+    private String IRI;
 
-    public Action(SimpleEvent associatedEvent, String associatedEventTopic, List<Operand> actionAttributes, ActionType actionType, String serviceURL, List<String> topicNames) {
+    public Action(SimpleEvent associatedEvent, String associatedEventTopic, List<Operand> actionAttributes, ActionType actionType, String serviceURL, List<String> topicNames, String IRI) {
         this.associatedEvent = associatedEvent;
         this.assocociatedEventTopic = associatedEventTopic;
         this.actionAttributes = actionAttributes;
         this.actionType = actionType;
         this.serviceURL = serviceURL;
         this.topicNames = topicNames;
+        this.IRI = IRI;
     }
 
     public Action() {
         this.actionAttributes = new ArrayList<>();
         this.topicNames = new ArrayList<String>();
+    }
+
+    public String getIRI() {
+        return IRI;
+    }
+
+    public void setIRI(String IRI) {
+        this.IRI = IRI;
     }
 
     public SimpleEvent getAssociatedEvent() {
@@ -94,6 +105,50 @@ public class Action {
     public void addTopic(String topicName) {
         //this.topicNames= new ArrayList<String>();
         Collections.addAll(this.topicNames, topicName);
+    }
+
+    @Override
+    public String interpret(InterpreterContext context) throws InterpreterException {
+        String action = "";
+        switch (context) {
+            case ESPER: {
+                for (Operand attribute : actionAttributes) {
+                    action += attribute.interpret(context);
+                    action += ", ";
+                }
+                if (actionAttributes.size() > 1) {
+                    action = action.substring(0, action.length() - 1);
+                }
+                return action;
+            }
+            default: {
+                for (Operand attribute : actionAttributes) {
+                    action += attribute.interpret(context);
+                    action += ", ";
+                }
+                if (actionAttributes.size() > 1) {
+                    action = action.substring(0, action.length() - 1);
+                }
+                return action;
+            }
+        }
+    }
+
+    @Override
+    public Map<String, String> interpretToMap(InterpreterContext context) throws InterpreterException {
+        Map<String, String> map = new HashMap<>();
+        switch (context) {
+            case ESPER: {
+                map.put("action", this.interpret(context));
+                return map;
+            }
+            default: {
+
+                map.put("action", this.interpret(context));
+                return map;
+            }
+
+        }
     }
 
     public enum ActionType {

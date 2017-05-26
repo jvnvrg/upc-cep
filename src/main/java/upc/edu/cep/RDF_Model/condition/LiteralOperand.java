@@ -1,6 +1,10 @@
 package upc.edu.cep.RDF_Model.condition;
 
+import upc.edu.cep.Interpreter.InterpreterContext;
 import upc.edu.cep.RDF_Model.event.AttributeType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by osboxes on 18/04/17.
@@ -44,5 +48,32 @@ public class LiteralOperand extends Operand {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public String interpret(InterpreterContext context) {
+        switch (context) {
+            case ESPER: {
+                return value;
+            }
+            default: {
+                return value;
+            }
+        }
+    }
+
+    @Override
+    public Map<String, String> interpretToMap(InterpreterContext context) {
+        Map<String, String> map = new HashMap<>();
+        switch (context) {
+            case ESPER: {
+                map.put("literal", value);
+                return map;
+            }
+            default: {
+                map.put("literal", value);
+                return map;
+            }
+        }
     }
 }

@@ -1,5 +1,10 @@
 package upc.edu.cep.RDF_Model.Operators;
 
+import upc.edu.cep.Interpreter.InterpreterContext;
+import upc.edu.cep.Interpreter.InterpreterException;
+
+import java.util.Map;
+
 /**
  * Created by osboxes on 18/05/17.
  */
@@ -42,5 +47,22 @@ public class Within extends TemporalOperator {
 
     public void setTimeUnit(TimeUnit timeUnit) {
         this.timeUnit = timeUnit;
+    }
+
+    @Override
+    public String interpret(InterpreterContext context) throws InterpreterException {
+        switch (context) {
+            case ESPER: {
+                return "where timer:within(" + offset + " " + timeUnit + ")";
+            }
+            default: {
+                return "where timer:within(" + offset + " " + timeUnit + ")";
+            }
+        }
+    }
+
+    @Override
+    public Map<String, String> interpretToMap(InterpreterContext context) throws InterpreterException {
+        throw new InterpreterException("not supported");
     }
 }

@@ -1,8 +1,13 @@
 package upc.edu.cep.RDF_Model.event;
 
+import upc.edu.cep.Interpreter.InterpreterContext;
+import upc.edu.cep.Interpreter.InterpreterException;
 import upc.edu.cep.RDF_Model.Operators.TemporalOperator;
+import upc.edu.cep.RDF_Model.Operators.TemporalOperatorEnum;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * Created by osboxes on 15/05/17.
@@ -35,5 +40,60 @@ public class ComplexTemporalEvent extends ComplexEvent {
 
     public void setTemporalOperator(TemporalOperator temporalOperator) {
         this.temporalOperator = temporalOperator;
+    }
+
+    @Override
+    public String interpret(InterpreterContext context) throws InterpreterException {
+        switch (context) {
+            case ESPER: {
+                if (temporalOperator.getOperator().equals(TemporalOperatorEnum.Sequence)) {
+                    Event head = events.pollFirst();
+                    String logicalEvent = head.interpret(context);
+                    head = events.pollFirst();
+                    while (head != null) {
+                        logicalEvent += temporalOperator.interpret(context);
+                        logicalEvent += head.interpret(context);
+                        head = events.pollFirst();
+                    }
+                    return logicalEvent;
+                }
+                if (temporalOperator.getOperator().equals(TemporalOperatorEnum.Within)) {
+                    return "(" + events.pollFirst().interpret(context) + " " + temporalOperator.interpret(context) + ")";
+                }
+                throw new InterpreterException("wrong temporal operator");
+            }
+            default: {
+                if (temporalOperator.getOperator().equals(TemporalOperatorEnum.Sequence)) {
+                    Event head = events.pollFirst();
+                    String logicalEvent = "(" + head.interpret(context) + ")";
+                    head = events.pollFirst();
+                    while (head != null) {
+                        logicalEvent += temporalOperator.interpret(context);
+                        logicalEvent += "(" + head.interpret(context) + ")";
+                        head = events.pollFirst();
+                    }
+                    return logicalEvent;
+                }
+                if (temporalOperator.getOperator().equals(TemporalOperatorEnum.Within)) {
+                    return "(" + events.pollFirst().interpret(context) + " " + temporalOperator.interpret(context) + ")";
+                }
+                throw new InterpreterException("wrong temporal operator");
+            }
+        }
+    }
+
+    @Override
+    public Map<String, String> interpretToMap(InterpreterContext context) throws InterpreterException {
+        Map<String, String> map = new HashMap<>();
+        switch (context) {
+            case ESPER: {
+                map.put("complex temporal event", interpret(context));
+                return map;
+            }
+            default: {
+                map.put("complex temporal event", interpret(context));
+                return map;
+            }
+        }
     }
 }

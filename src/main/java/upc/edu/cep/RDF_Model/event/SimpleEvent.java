@@ -1,7 +1,12 @@
 package upc.edu.cep.RDF_Model.event;
 
+import upc.edu.cep.Interpreter.InterpreterContext;
+import upc.edu.cep.Interpreter.InterpreterException;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by osboxes on 14/04/17.
@@ -53,5 +58,32 @@ public class SimpleEvent extends Event {
 
     public void setEventName(String eventName) {
         this.eventName = eventName;
+    }
+
+    @Override
+    public String interpret(InterpreterContext context) throws InterpreterException {
+        switch (context) {
+            case ESPER: {
+                return eventName;
+            }
+            default: {
+                return eventName;
+            }
+        }
+    }
+
+    @Override
+    public Map<String, String> interpretToMap(InterpreterContext context) throws InterpreterException {
+        Map<String, String> map = new HashMap<>();
+        switch (context) {
+            case ESPER: {
+                map.put("simple event", eventName);
+                return map;
+            }
+            default: {
+                map.put("simple event", eventName);
+                return map;
+            }
+        }
     }
 }

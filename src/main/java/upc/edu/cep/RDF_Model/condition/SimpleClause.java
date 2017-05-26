@@ -1,6 +1,11 @@
 package upc.edu.cep.RDF_Model.condition;
 
+import upc.edu.cep.Interpreter.InterpreterContext;
+import upc.edu.cep.Interpreter.InterpreterException;
 import upc.edu.cep.RDF_Model.Operators.ComparasionOperator;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by osboxes on 17/04/17.
@@ -55,5 +60,34 @@ public class SimpleClause extends Condition {
 
     public void setOperand2(Operand operand2) {
         this.operand2 = operand2;
+    }
+
+    @Override
+    public String interpret(InterpreterContext context) throws InterpreterException {
+        switch (context) {
+            case ESPER: {
+                return operand1.interpret(context) + (operator == null ? "" : operator.interpret(context)) + (operator == null ? "" : operand2.interpret(context));
+            }
+            default: {
+                return operand1.interpret(context) + (operator == null ? "" : operator.interpret(context)) + (operator == null ? "" : operand2.interpret(context));
+            }
+        }
+    }
+
+    @Override
+    public Map<String, String> interpretToMap(InterpreterContext context) throws InterpreterException {
+        Map<String, String> map = new HashMap<>();
+        switch (context) {
+            case ESPER: {
+                map.put("simple clause", operand1.interpret(context) + (operator == null ? "" : operator.interpret(context)) + (operator == null ? "" : operand2.interpret(context)));
+                return map;
+            }
+            default: {
+
+                map.put("simple clause", operand1.interpret(context) + (operator == null ? "" : operator.interpret(context)) + (operator == null ? "" : operand2.interpret(context)));
+                return map;
+            }
+
+        }
     }
 }
