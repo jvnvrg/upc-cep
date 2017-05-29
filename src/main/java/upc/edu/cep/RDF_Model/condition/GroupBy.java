@@ -26,6 +26,13 @@ public class GroupBy extends FunctionOperand {
         this.setOperandType(OperandType.groupby);
     }
 
+    public GroupBy(FunctionParameter attribute) {
+        this.setFunctionName("group by");
+        List<FunctionParameter> parameterSingleton = Collections.singletonList(attribute);
+        this.setParameters(parameterSingleton);
+        this.setOperandType(OperandType.groupby);
+    }
+
     @Override
     public String interpret(InterpreterContext context) throws InterpreterException {
         switch (context) {

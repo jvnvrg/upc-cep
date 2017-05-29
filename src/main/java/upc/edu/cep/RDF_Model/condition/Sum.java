@@ -26,6 +26,13 @@ public class Sum extends FunctionOperand {
         this.setOperandType(OperandType.having);
     }
 
+    public Sum(FunctionParameter attribute) {
+        this.setFunctionName("sum");
+        List<FunctionParameter> parameterSingleton = Collections.singletonList(attribute);
+        this.setParameters(parameterSingleton);
+        this.setOperandType(OperandType.having);
+    }
+
     @Override
     public String interpret(InterpreterContext context) throws InterpreterException {
         switch (context) {

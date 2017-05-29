@@ -59,18 +59,18 @@ public class ComplexPredicate extends Condition {
     public String interpret(InterpreterContext context) throws InterpreterException {
         switch (context) {
             case ESPER: {
-                String complexPredicate = conditions.get(0).interpret(context);
+                String complexPredicate = conditions.get(0).interpret(context) + " ";
                 for (int i = 1; i < conditions.size(); i++) {
-                    complexPredicate += operator.interpret(context);
-                    complexPredicate += conditions.get(i).interpret(context);
+                    complexPredicate += operator.interpret(context) + " ";
+                    complexPredicate += conditions.get(i).interpret(context) + " ";
                 }
                 return complexPredicate;
             }
             default: {
-                String complexPredicate = conditions.get(0).interpret(context);
+                String complexPredicate = conditions.get(0).interpret(context) + " ";
                 for (int i = 1; i < conditions.size(); i++) {
-                    complexPredicate += operator.interpret(context);
-                    complexPredicate += conditions.get(i).interpret(context);
+                    complexPredicate += operator.interpret(context) + " ";
+                    complexPredicate += conditions.get(i).interpret(context) + " ";
                 }
                 return complexPredicate;
             }
@@ -89,19 +89,19 @@ public class ComplexPredicate extends Condition {
                     for (Condition condition : conditions) {
                         if (isgroupby) {
                             if (condition.hasGroupBy()) {
-                                map.put("group by", this.interpret(context));
+                                map.put("group by", condition.interpret(context));
                                 isgroupby = false;
                             }
                         }
                         if (ishaving) {
                             if (condition.hasHaving()) {
-                                map.put("having", this.interpret(context));
+                                map.put("having", condition.interpret(context));
                                 ishaving = false;
                             }
                         }
                         if (iswhere) {
                             if (condition.hasWhere()) {
-                                map.put("where", this.interpret(context));
+                                map.put("where", condition.interpret(context));
                                 iswhere = false;
                             }
                         }

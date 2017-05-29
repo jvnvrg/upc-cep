@@ -65,7 +65,7 @@ public class Window implements Interpreter {
         if (windowType.equals(WindowType.SLIDING_WINDOW))
             return ".win:time_batch(" + within + timeUnit + ")";
         else if (windowType.equals(WindowType.TUMBLING_WINDOW))
-            return ".win:time_batch(" + within + timeUnit + ")";
+            return ".win:time(" + within + " " + timeUnit + ")";
         throw new InterpreterException("window type not supported");
     }
 

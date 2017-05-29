@@ -26,6 +26,13 @@ public class Min extends FunctionOperand {
         this.setOperandType(OperandType.having);
     }
 
+    public Min(FunctionParameter attribute) {
+        this.setFunctionName("min");
+        List<FunctionParameter> parameterSingleton = Collections.singletonList(attribute);
+        this.setParameters(parameterSingleton);
+        this.setOperandType(OperandType.having);
+    }
+
     @Override
     public String interpret(InterpreterContext context) throws InterpreterException {
         switch (context) {

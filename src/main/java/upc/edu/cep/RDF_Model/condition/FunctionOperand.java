@@ -49,7 +49,7 @@ public class FunctionOperand extends Operand {
     }
 
     public void setParameters(List<FunctionParameter> innerOperand) {
-        this.parameters = parameters;
+        this.parameters = innerOperand;
     }
 
     public String getFunctionName() {

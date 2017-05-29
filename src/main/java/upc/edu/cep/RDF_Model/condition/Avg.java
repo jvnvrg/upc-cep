@@ -26,6 +26,13 @@ public class Avg extends FunctionOperand {
         this.setOperandType(OperandType.having);
     }
 
+    public Avg(FunctionParameter attribute) {
+        this.setFunctionName("avg");
+        List<FunctionParameter> parameterSingleton = Collections.singletonList(attribute);
+        this.setParameters(parameterSingleton);
+        this.setOperandType(OperandType.having);
+    }
+
     @Override
     public String interpret(InterpreterContext context) throws InterpreterException {
         switch (context) {

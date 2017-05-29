@@ -52,13 +52,13 @@ public class ComplexTemporalEvent extends ComplexEvent {
                     head = events.pollFirst();
                     while (head != null) {
                         logicalEvent += temporalOperator.interpret(context);
-                        logicalEvent += head.interpret(context);
+                        logicalEvent += "(" + head.interpret(context) + ")";
                         head = events.pollFirst();
                     }
                     return logicalEvent;
                 }
                 if (temporalOperator.getOperator().equals(TemporalOperatorEnum.Within)) {
-                    return "(" + events.pollFirst().interpret(context) + " " + temporalOperator.interpret(context) + ")";
+                    return events.pollFirst().interpret(context) + " " + temporalOperator.interpret(context);
                 }
                 throw new InterpreterException("wrong temporal operator");
             }
@@ -75,7 +75,7 @@ public class ComplexTemporalEvent extends ComplexEvent {
                     return logicalEvent;
                 }
                 if (temporalOperator.getOperator().equals(TemporalOperatorEnum.Within)) {
-                    return "(" + events.pollFirst().interpret(context) + " " + temporalOperator.interpret(context) + ")";
+                    return events.pollFirst().interpret(context) + " " + temporalOperator.interpret(context);
                 }
                 throw new InterpreterException("wrong temporal operator");
             }

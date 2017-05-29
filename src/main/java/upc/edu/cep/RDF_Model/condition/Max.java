@@ -26,6 +26,13 @@ public class Max extends FunctionOperand {
         this.setOperandType(OperandType.having);
     }
 
+    public Max(FunctionParameter attribute) {
+        this.setFunctionName("max");
+        List<FunctionParameter> parameterSingleton = Collections.singletonList(attribute);
+        this.setParameters(parameterSingleton);
+        this.setOperandType(OperandType.having);
+    }
+
     @Override
     public String interpret(InterpreterContext context) throws InterpreterException {
         switch (context) {

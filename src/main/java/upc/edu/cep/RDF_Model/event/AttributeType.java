@@ -9,5 +9,6 @@ public enum AttributeType {
     TYPE_BOOLEAN,
     TYPE_FLOAT,
     TYPE_BYTES,
-    TYPE_LONG
+    TYPE_LONG,
+    TYPE_INTEGER
 };

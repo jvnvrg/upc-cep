@@ -25,7 +25,7 @@ public abstract class Condition implements Interpreter {
     }
 
     protected boolean hasGroupBy() {
-        if (this.getClass().isInstance(ComplexPredicate.class)) {
+        if (this.getClass().equals(ComplexPredicate.class)) {
             ComplexPredicate complexPredicate = (ComplexPredicate) this;
             for (Condition condition : complexPredicate.conditions) {
                 if (condition.hasGroupBy()) {
@@ -42,7 +42,7 @@ public abstract class Condition implements Interpreter {
     }
 
     protected boolean hasHaving() {
-        if (this.getClass().isInstance(ComplexPredicate.class)) {
+        if (this.getClass().equals(ComplexPredicate.class)) {
             ComplexPredicate complexPredicate = (ComplexPredicate) this;
             for (Condition condition : complexPredicate.conditions) {
                 if (condition.hasHaving()) {
@@ -63,7 +63,7 @@ public abstract class Condition implements Interpreter {
 
     protected boolean hasWhere() {
 
-        if (this.getClass().isInstance(ComplexPredicate.class)) {
+        if (this.getClass().equals(ComplexPredicate.class)) {
             ComplexPredicate complexPredicate = (ComplexPredicate) this;
             for (Condition condition : complexPredicate.conditions) {
                 if (condition.hasWhere()) {

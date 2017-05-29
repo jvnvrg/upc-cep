@@ -38,6 +38,8 @@ public class CEPSink extends AbstractSink implements Configurable {
 
     private String monitor = "";
 
+    private String[] action = {"count(Event1.mylog)"};
+
     public static Schema makeSchema(Map attributes, String eventName) {
 
         List<Schema.Field> fields = new ArrayList();
@@ -271,7 +273,7 @@ public class CEPSink extends AbstractSink implements Configurable {
                 EventBean event = newEvents[0];
                 //System.out.println("Spike: " + event.get("spike"));
                 //System.out.println("Error: " + event.get("error"));
-                System.out.println("Count: " + event.get("count(a)") + monitor);
+                System.out.println("Count: " + event.get(action[0]) + monitor);
                 System.out.println(statement.getName());
 //                try {
 //             //       Files.write(Paths.get("/home/osboxes/upc-cep/cep1.txt"), ("Count: " + event.get("count(mylog)") + "----------------------------------").getBytes(), StandardOpenOption.APPEND);

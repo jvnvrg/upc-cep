@@ -68,6 +68,10 @@ public class Action implements Interpreter {
         this.actionAttributes = actionAttributes;
     }
 
+    public void addActionAttribute(Operand operand) {
+        actionAttributes.add(operand);
+    }
+
     public ActionType getActionType() {
         return actionType;
     }
@@ -88,13 +92,13 @@ public class Action implements Interpreter {
         return topicNames;
     }
 
+    public void setTopicNames(List<String> topicNames) {
+        this.topicNames = topicNames;
+    }
+
     public void setTopicNames(String[] topicNames) {
         this.topicNames = new ArrayList<String>();
         Collections.addAll(this.topicNames, topicNames);
-    }
-
-    public void setTopicNames(List<String> topicNames) {
-        this.topicNames = topicNames;
     }
 
     public void addTopics(String[] topicNames) {
@@ -116,8 +120,8 @@ public class Action implements Interpreter {
                     action += attribute.interpret(context);
                     action += ", ";
                 }
-                if (actionAttributes.size() > 1) {
-                    action = action.substring(0, action.length() - 1);
+                if (actionAttributes.size() > 0) {
+                    action = action.substring(0, action.lastIndexOf(','));
                 }
                 return action;
             }
@@ -126,8 +130,8 @@ public class Action implements Interpreter {
                     action += attribute.interpret(context);
                     action += ", ";
                 }
-                if (actionAttributes.size() > 1) {
-                    action = action.substring(0, action.length() - 1);
+                if (actionAttributes.size() > 0) {
+                    action = action.substring(0, action.lastIndexOf(','));
                 }
                 return action;
             }

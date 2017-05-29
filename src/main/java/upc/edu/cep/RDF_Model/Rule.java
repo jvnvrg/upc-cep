@@ -79,19 +79,28 @@ public class Rule implements Interpreter {
         switch (context) {
             case ESPER: {
                 String rule = "select ";
-                rule += action.interpret(context);
-                rule += " from pattern [every " + event.interpret(context) + "]" + window.interpret(context) + " ";
-                Map<String, String> cons = condition.interpretToMap(context);
-                if (cons.get("where") != null) {
-                    rule += "where " + cons.get("where") + " ";
+                if (action != null) {
+                    rule += action.interpret(context);
+                } else {
+                    rule += "*";
                 }
-                if (cons.get("group by") != null) {
-                    rule += "group by " + cons.get("groupby") + " ";
+                if (event != null)
+                    rule += " from pattern [every " + event.interpret(context) + "]";
+                if (window != null)
+                    rule += window.interpret(context) + " ";
+                if (condition != null) {
+                    Map<String, String> cons = condition.interpretToMap(context);
+                    if (cons.get("where") != null) {
+                        rule += "where " + cons.get("where") + " ";
+                    }
+                    if (cons.get("group by") != null) {
+                        rule += "group by " + cons.get("group by") + " ";
+                    }
+                    if (cons.get("having") != null) {
+                        rule += "having " + cons.get("having") + " ";
+                    }
                 }
-                if (cons.get("having") != null) {
-                    rule += "having " + cons.get("having") + " ";
-                }
-                break;
+                return rule;
             }
         }
         return null;

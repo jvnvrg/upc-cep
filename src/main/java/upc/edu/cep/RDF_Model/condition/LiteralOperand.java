@@ -54,10 +54,16 @@ public class LiteralOperand extends Operand {
     public String interpret(InterpreterContext context) {
         switch (context) {
             case ESPER: {
-                return value;
+                if (type.equals(AttributeType.TYPE_STRING)) {
+                    return "'" + value + "'";
+                } else
+                    return value;
             }
             default: {
-                return value;
+                if (type.equals(AttributeType.TYPE_STRING)) {
+                    return "'" + value + "'";
+                } else
+                    return value;
             }
         }
     }
@@ -67,12 +73,22 @@ public class LiteralOperand extends Operand {
         Map<String, String> map = new HashMap<>();
         switch (context) {
             case ESPER: {
-                map.put("literal", value);
-                return map;
+                if (type.equals(AttributeType.TYPE_STRING)) {
+                    map.put("literal", "'" + value + "'");
+                    return map;
+                } else {
+                    map.put("literal", value);
+                    return map;
+                }
             }
             default: {
-                map.put("literal", value);
-                return map;
+                if (type.equals(AttributeType.TYPE_STRING)) {
+                    map.put("literal", "'" + value + "'");
+                    return map;
+                } else {
+                    map.put("literal", value);
+                    return map;
+                }
             }
         }
     }
