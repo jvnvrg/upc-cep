@@ -17,13 +17,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.*;
 
-public class CustomSelectorA extends AbstractChannelSelector {
+public class CEPFilterSelector extends AbstractChannelSelector {
 
     public static final String CONFIG_CHANNELS = "channels";
 
     @SuppressWarnings("unused")
     private static final Logger LOG = LoggerFactory
-            .getLogger(CustomSelectorA.class);
+            .getLogger(CEPFilterSelector.class);
 
     private static final List<Channel> EMPTY_LIST =
             Collections.emptyList();

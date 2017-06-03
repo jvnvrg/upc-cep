@@ -45,38 +45,41 @@ public class ComplexLogicEvent extends ComplexEvent {
 
     @Override
     public String interpret(InterpreterContext context) throws InterpreterException {
+        LinkedList<Event> copy = new LinkedList<>(events);
         switch (context) {
             case ESPER: {
                 if (logicOperator.getOperator().equals(LogicOperatorEnum.Conjunction) || logicOperator.getOperator().equals(LogicOperatorEnum.Disjunction)) {
-                    Event head = events.pollFirst();
+
+                    Event head = copy.pollFirst();
                     String logicalEvent = "(" + head.interpret(context) + ")";
-                    head = events.pollFirst();
+                    head = copy.pollFirst();
                     while (head != null) {
                         logicalEvent += logicOperator.interpret(context);
                         logicalEvent += "(" + head.interpret(context) + ")";
-                        head = events.pollFirst();
+                        head = copy.pollFirst();
                     }
                     return logicalEvent;
                 }
                 if (logicOperator.getOperator().equals(LogicOperatorEnum.Negation)) {
-                    return logicOperator.interpret(context) + "(" + events.pollFirst().interpret(context) + ")";
+                    return logicOperator.interpret(context) + "(" + copy.pollFirst().interpret(context) + ")";
                 }
                 throw new InterpreterException("wrong logical operator");
             }
             default: {
+
                 if (logicOperator.getOperator().equals(LogicOperatorEnum.Conjunction) || logicOperator.getOperator().equals(LogicOperatorEnum.Disjunction)) {
-                    Event head = events.pollFirst();
+                    Event head = copy.pollFirst();
                     String logicalEvent = "(" + head.interpret(context) + ")";
-                    head = events.pollFirst();
+                    head = copy.pollFirst();
                     while (head != null) {
                         logicalEvent += logicOperator.interpret(context);
                         logicalEvent += "(" + head.interpret(context) + ")";
-                        head = events.pollFirst();
+                        head = copy.pollFirst();
                     }
                     return logicalEvent;
                 }
                 if (logicOperator.getOperator().equals(LogicOperatorEnum.Negation)) {
-                    return logicOperator.interpret(context) + " (" + events.pollFirst().interpret(context) + ")";
+                    return logicOperator.interpret(context) + " (" + copy.pollFirst().interpret(context) + ")";
                 }
                 throw new InterpreterException("wrong logical operator");
             }

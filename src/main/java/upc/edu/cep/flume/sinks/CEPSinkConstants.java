@@ -10,6 +10,7 @@ class CEPSinkConstants {
     static final String ATTRIBUTE_TYPE = "type";
     static final String DELETED_RULES = "deletedRules";
     static final String EXPRESSION = "expression";
+    static final String ACTIONS = "actions";
     static final String EVENT_ATTRIBUTES = "attributes";
     static final String RESTART = "restart";
     static final String RULE_ID = "ruleID";

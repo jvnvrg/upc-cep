@@ -86,6 +86,32 @@ public class ComparasionOperator extends Operator {
     public Map<String, String> interpretToMap(InterpreterContext context) throws InterpreterException {
         throw new InterpreterException("not supported");
     }
+
+    public String toString() {
+        switch (operator) {
+            case EQ: {
+                return "eq";
+            }
+            case NE: {
+                return "ne";
+            }
+            case GT: {
+                return "gt";
+            }
+            case GE: {
+                return "ge";
+            }
+            case LE: {
+                return "le";
+            }
+            case LT: {
+                return "lt";
+            }
+            default: {
+                return "error";
+            }
+        }
+    }
 }
 
 

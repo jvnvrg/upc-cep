@@ -44,38 +44,39 @@ public class ComplexTemporalEvent extends ComplexEvent {
 
     @Override
     public String interpret(InterpreterContext context) throws InterpreterException {
+        LinkedList<Event> copy = new LinkedList<>(events);
         switch (context) {
             case ESPER: {
                 if (temporalOperator.getOperator().equals(TemporalOperatorEnum.Sequence)) {
-                    Event head = events.pollFirst();
+                    Event head = copy.pollFirst();
                     String logicalEvent = head.interpret(context);
-                    head = events.pollFirst();
+                    head = copy.pollFirst();
                     while (head != null) {
                         logicalEvent += temporalOperator.interpret(context);
                         logicalEvent += "(" + head.interpret(context) + ")";
-                        head = events.pollFirst();
+                        head = copy.pollFirst();
                     }
                     return logicalEvent;
                 }
                 if (temporalOperator.getOperator().equals(TemporalOperatorEnum.Within)) {
-                    return events.pollFirst().interpret(context) + " " + temporalOperator.interpret(context);
+                    return copy.pollFirst().interpret(context) + " " + temporalOperator.interpret(context);
                 }
                 throw new InterpreterException("wrong temporal operator");
             }
             default: {
                 if (temporalOperator.getOperator().equals(TemporalOperatorEnum.Sequence)) {
-                    Event head = events.pollFirst();
+                    Event head = copy.pollFirst();
                     String logicalEvent = "(" + head.interpret(context) + ")";
-                    head = events.pollFirst();
+                    head = copy.pollFirst();
                     while (head != null) {
                         logicalEvent += temporalOperator.interpret(context);
                         logicalEvent += "(" + head.interpret(context) + ")";
-                        head = events.pollFirst();
+                        head = copy.pollFirst();
                     }
                     return logicalEvent;
                 }
                 if (temporalOperator.getOperator().equals(TemporalOperatorEnum.Within)) {
-                    return events.pollFirst().interpret(context) + " " + temporalOperator.interpret(context);
+                    return copy.pollFirst().interpret(context) + " " + temporalOperator.interpret(context);
                 }
                 throw new InterpreterException("wrong temporal operator");
             }

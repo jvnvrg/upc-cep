@@ -76,7 +76,7 @@ import static scala.collection.JavaConverters.asJavaListConverter;
  * in conjunction with useFlumeEventFormat (Kafka Sink) or parseAsFlumeEvent (Kafka Channel)
  * <p>
  */
-public class CustomTypeKafkaSource extends AbstractPollableSource
+public class CEPKafkaSource extends AbstractPollableSource
         implements Configurable {
     private static final Logger log = LoggerFactory.getLogger(KafkaSource.class);
 

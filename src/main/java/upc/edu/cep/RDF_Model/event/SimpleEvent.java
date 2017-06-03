@@ -2,6 +2,7 @@ package upc.edu.cep.RDF_Model.event;
 
 import upc.edu.cep.Interpreter.InterpreterContext;
 import upc.edu.cep.Interpreter.InterpreterException;
+import upc.edu.cep.RDF_Model.condition.SimpleClause;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,61 +14,46 @@ import java.util.Map;
  */
 public class SimpleEvent extends Event {
 
-    private String eventName;
+    private AtomicEvent atomicEvent;
 
-    private List<Attribute> attributes;
+    private List<SimpleClause> filters;
 
-
-    public SimpleEvent(String IRI, String eventName, List<Attribute> attributes) {
-        super(IRI);
-        this.eventName = eventName;
-        this.attributes = attributes;
-    }
-
-    public SimpleEvent(String eventName, List<Attribute> attributes) {
-        super();
-        this.eventName = eventName;
-        this.attributes = attributes;
-    }
 
     public SimpleEvent(String IRI) {
         super(IRI);
-        this.attributes = new ArrayList<>();
+        this.filters = new ArrayList<>();
     }
+
 
     public SimpleEvent() {
         super();
-        this.attributes = new ArrayList<>();
+        this.filters = new ArrayList<>();
     }
 
-    public void addAttribute(Attribute attribute) {
-        attributes.add(attribute);
+    public AtomicEvent getAtomicEvent() {
+        return atomicEvent;
     }
 
-    public List<Attribute> getAttributes() {
-        return attributes;
+    public void setAtomicEvent(AtomicEvent atomicEvent) {
+        this.atomicEvent = atomicEvent;
     }
 
-    public void setAttributes(List<Attribute> attributes) {
-        this.attributes = attributes;
+    public List<SimpleClause> getFilters() {
+        return filters;
     }
 
-    public String getEventName() {
-        return eventName;
-    }
-
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
+    public void setFilters(List<SimpleClause> filters) {
+        this.filters = filters;
     }
 
     @Override
     public String interpret(InterpreterContext context) throws InterpreterException {
         switch (context) {
             case ESPER: {
-                return eventName;
+                return atomicEvent.getEventName();
             }
             default: {
-                return eventName;
+                return atomicEvent.getEventName();
             }
         }
     }
@@ -77,11 +63,11 @@ public class SimpleEvent extends Event {
         Map<String, String> map = new HashMap<>();
         switch (context) {
             case ESPER: {
-                map.put("simple event", eventName);
+                map.put("simple event", atomicEvent.getEventName());
                 return map;
             }
             default: {
-                map.put("simple event", eventName);
+                map.put("simple event", atomicEvent.getEventName());
                 return map;
             }
         }

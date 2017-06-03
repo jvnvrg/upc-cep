@@ -1,4 +1,4 @@
-package upc.edu.cep.Interpreter;
+package upc.edu.cep.manager;
 
 import upc.edu.cep.RDF_Model.Operators.*;
 import upc.edu.cep.RDF_Model.Rule;
@@ -8,53 +8,80 @@ import upc.edu.cep.RDF_Model.event.*;
 import upc.edu.cep.RDF_Model.window.Window;
 import upc.edu.cep.RDF_Model.window.WindowType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Created by osboxes on 26/05/17.
+ * Created by osboxes on 01/06/17.
  */
-public class InterpreterTest {
+public class managerTest {
+    private static List<AtomicEvent> atomicEvents = new ArrayList<>();
+    private static List<Rule> rules = new ArrayList<>();
+
     public static void main(String[] args) throws Exception {
 
-        test2();
+        //System.out.println(FlumeChannel.Interpret("AAA", "CCC"));
+        Manager manager = new Manager();
+        createRule();
+        System.out.println(manager.CreateConfiguration("agent", atomicEvents, rules, "localhost:2181", "json", false, "rule2"));
+
 
     }
 
-
-    public static void test2() throws InterpreterException {
+    private static void createRule() {
 //        select a.custId, sum(b.price)
 //        from pattern [every a=ServiceOrder ->
 //                b=ProductOrder where timer:within(1 min)].win:time(2 hour)
-//        where a.name = 'Repair' and b.custId = a.custId
+//        where a.name = 'Repair' and b.price>10 and b.custId = a.custId
 //        group by a.custId
 //        having sum(b.price) > 100
 
         //Event and Attributes
         Attribute custIda = new Attribute();
+        custIda.setIRI("custIda");
         custIda.setName("custId");
+        custIda.setAttributeType(AttributeType.TYPE_STRING);
         Attribute name = new Attribute();
+        name.setIRI("name");
         name.setName("name");
+        name.setAttributeType(AttributeType.TYPE_STRING);
 
         AtomicEvent serviceOrdera = new AtomicEvent();
+        serviceOrdera.setTopicName("ServiceOrderTopic");
+        serviceOrdera.setIRI("ServiceOrder");
         serviceOrdera.setEventName("ServiceOrder");
         serviceOrdera.addAttribute(custIda);
         serviceOrdera.addAttribute(name);
 
+        atomicEvents.add(serviceOrdera);
+
         SimpleEvent serviceOrder = new SimpleEvent();
+        serviceOrder.setIRI("ServiceOrder-simple");
         serviceOrder.setAtomicEvent(serviceOrdera);
 
         custIda.setEvent(serviceOrdera);
         name.setEvent(serviceOrdera);
 
         Attribute price = new Attribute();
+        price.setAttributeType(AttributeType.TYPE_INTEGER);
+        price.setIRI("price");
         price.setName("price");
         Attribute custIdb = new Attribute();
+        custIdb.setAttributeType(AttributeType.TYPE_STRING);
+        custIdb.setIRI("custIdb");
         custIdb.setName("custId");
 
         AtomicEvent productOrdera = new AtomicEvent();
+        productOrdera.setTopicName("ProductOrderTopic");
+        productOrdera.setIRI("ProductOrder");
         productOrdera.setEventName("ProductOrder");
         productOrdera.addAttribute(price);
         productOrdera.addAttribute(custIdb);
 
+        atomicEvents.add(productOrdera);
+
         SimpleEvent productOrder = new SimpleEvent();
+        productOrder.setIRI("ProductOrder-simple");
         productOrder.setAtomicEvent(productOrdera);
 
         price.setEvent(productOrdera);
@@ -98,6 +125,10 @@ public class InterpreterTest {
         literal2.setType(AttributeType.TYPE_INTEGER);
         literal2.setValue("100");
 
+        LiteralOperand literal3 = new LiteralOperand();
+        literal3.setType(AttributeType.TYPE_INTEGER);
+        literal3.setValue("10");
+
         FunctionParameter groupParameter1 = new FunctionParameter();
         groupParameter1.setOperand(custIda);
         GroupBy groupBy = new GroupBy(groupParameter1);
@@ -114,21 +145,22 @@ public class InterpreterTest {
         c2.setOperand1(groupBy);
 
 
-        ComplexPredicate whereCondition = new ComplexPredicate();
-        whereCondition.setOperator(new LogicOperator(LogicOperatorEnum.Conjunction));
-
         SimpleClause c3 = new SimpleClause();
         c3.setOperand1(name);
         c3.setOperator(new ComparasionOperator(ComparasionOperatorEnum.EQ));
         c3.setOperand2(literal1);
+        serviceOrder.getFilters().add(c3);
 
-        SimpleClause c4 = new SimpleClause();
-        c4.setOperand1(custIda);
-        c4.setOperator(new ComparasionOperator(ComparasionOperatorEnum.EQ));
-        c4.setOperand2(custIdb);
+        SimpleClause whereCondition = new SimpleClause();
+        whereCondition.setOperand1(custIda);
+        whereCondition.setOperator(new ComparasionOperator(ComparasionOperatorEnum.EQ));
+        whereCondition.setOperand2(custIdb);
 
-        whereCondition.getConditions().add(c3);
-        whereCondition.getConditions().add(c4);
+        SimpleClause c5 = new SimpleClause();
+        c5.setOperand1(price);
+        c5.setOperator(new ComparasionOperator(ComparasionOperatorEnum.GT));
+        c5.setOperand2(literal3);
+        productOrder.getFilters().add(c5);
 
 
         allCondition.getConditions().add(c1);
@@ -138,51 +170,12 @@ public class InterpreterTest {
 
         //Rule
         Rule rule = new Rule();
+        rule.setIRI("rule1");
         rule.setEvent(withinEvent);
         rule.setWindow(window);
         rule.setAction(action);
         rule.setCondition(allCondition);
 
-        System.out.println(rule.interpret(InterpreterContext.ESPER));
-    }
-
-    public static void test1() throws InterpreterException {
-        //select count(Event1.A) from pattern [every Event1 where timer:within(2 sec)].win:time(2 hour)
-
-        Attribute a = new Attribute();
-        a.setName("A");
-
-        AtomicEvent event1 = new AtomicEvent();
-        event1.setEventName("Event1");
-        event1.addAttribute(a);
-
-        a.setEvent(event1);
-
-        Within within = new Within();
-        within.setOffset(2);
-        within.setTimeUnit(TimeUnit.second);
-
-        ComplexTemporalEvent temporalEvent = new ComplexTemporalEvent();
-        temporalEvent.setTemporalOperator(within);
-        temporalEvent.addEvents(event1);
-
-        Window window = new Window();
-        window.setTimeUnit(TimeUnit.hour);
-        window.setWindowType(WindowType.TUMBLING_WINDOW);
-        window.setWithin(2);
-
-        Action action = new Action();
-        FunctionParameter parameter = new FunctionParameter();
-        parameter.setOperand(a);
-        //action.set
-        Count count = new Count(parameter);
-        action.addActionAttribute(count);
-
-        Rule rule = new Rule();
-        rule.setEvent(temporalEvent);
-        rule.setWindow(window);
-        rule.setAction(action);
-
-        System.out.println(rule.interpret(InterpreterContext.ESPER));
+        rules.add(rule);
     }
 }

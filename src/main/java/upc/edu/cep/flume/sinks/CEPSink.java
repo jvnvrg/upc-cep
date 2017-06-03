@@ -38,7 +38,7 @@ public class CEPSink extends AbstractSink implements Configurable {
 
     private String monitor = "";
 
-    private String[] action = {"count(Event1.mylog)"};
+    private String[] action;
 
     public static Schema makeSchema(Map attributes, String eventName) {
 
@@ -68,6 +68,10 @@ public class CEPSink extends AbstractSink implements Configurable {
                 }
                 case CEPSinkConstants.TYPE_LONG: {
                     fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.LONG), null, null));
+                    break;
+                }
+                case CEPSinkConstants.TYPE_INT: {
+                    fields.add(new Schema.Field((String) entry.getKey(), Schema.create(Schema.Type.INT), null, null));
                     break;
                 }
             }
@@ -146,6 +150,7 @@ public class CEPSink extends AbstractSink implements Configurable {
         epService = EPServiceProviderManager.getDefaultProvider(config);
         events = new HashMap<>();
         String[] eventNames = context.getString(CEPSinkConstants.EVENT_NAME).trim().split(" ");
+        action = context.getString(CEPSinkConstants.ACTIONS).trim().split(" ");
         for (String eventName : eventNames) {
             String eventAttributes = context.getString(eventName + "." + CEPSinkConstants.EVENT_ATTRIBUTES);
             SinkEvent sinkEvent = new SinkEvent();
