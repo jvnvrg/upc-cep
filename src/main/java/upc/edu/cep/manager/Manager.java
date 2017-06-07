@@ -15,7 +15,7 @@ public class Manager {
 
     private Map<FlumeSource, List<FlumeSink>> sourceSinksMap = new HashMap<>();
 
-    public String CreateConfiguration(String agentName, List<AtomicEvent> events, List<Rule> rules, String zookeeperConnect, String streamType, boolean restart, String deletedRules) throws Exception {
+    public String CreateConfiguration(String agentName, List<EventSchema> events, List<Rule> rules, String zookeeperConnect, String streamType, boolean restart, String deletedRules) throws Exception {
 //        BASE64Encoder encoder = new BASE64Encoder();
 //        MessageDigest md = MessageDigest.getInstance("MD5");
 //        md.update(someString.getBytes());
@@ -42,7 +42,7 @@ public class Manager {
             flumeSinks.add(flumeSink);
         }
 
-        for (AtomicEvent event : events) {
+        for (EventSchema event : events) {
             FlumeSource flumeSource = new FlumeSource();
             flumeSource.setEvent(event);
             flumeSource.setStreamType(streamType);
@@ -53,7 +53,7 @@ public class Manager {
             sourceSinksMap.put(flumeSource, new ArrayList<>());
         }
         for (FlumeSink flumeSink : flumeSinks) {
-            fillMap(flumeSink, flumeSink.getRule().getEvent());
+            fillMap(flumeSink, flumeSink.getRule().getCEPElement());
         }
 
         String sources = "", channels = "", sinks = "";
@@ -85,17 +85,17 @@ public class Manager {
         return result;
     }
 
-    private void fillMap(FlumeSink sink, Event event) {
-        if (event.getClass().equals(SimpleEvent.class)) {
+    private void fillMap(FlumeSink sink, CEPElement CEPElement) {
+        if (CEPElement.getClass().equals(Event.class)) {
             for (FlumeSource flumeSource : sourceSinksMap.keySet()) {
-                if (flumeSource.getEvent().equals(((SimpleEvent) event).getAtomicEvent())) {
+                if (flumeSource.getEvent().equals(((Event) CEPElement).getEventSchema())) {
                     if (!sourceSinksMap.get(flumeSource).contains(sink)) {
                         sourceSinksMap.get(flumeSource).add(sink);
                     }
                 }
             }
-        } else if (!event.getClass().equals(TimeEvent.class)) {
-            for (Event e : ((ComplexEvent) event).getEvents()) {
+        } else if (!CEPElement.getClass().equals(TimeEvent.class)) {
+            for (CEPElement e : ((Pattern) CEPElement).getCEPElements()) {
                 fillMap(sink, e);
             }
         }

@@ -26,7 +26,7 @@ public class CEPSink1 extends AbstractSink implements Configurable {
 
         // Configuration
         Configuration config = new Configuration();
-        config.addEventTypeAutoName("com.edu.cep.events");
+        config.addEventTypeAutoName("com.edu.cep.CEPElements");
          epService = EPServiceProviderManager.getDefaultProvider(config);
 
 
@@ -72,7 +72,7 @@ public class CEPSink1 extends AbstractSink implements Configurable {
                 byte[] body = event.getBody();
                 String data = new String(body);
 
-                // Sending events
+                // Sending CEPElements
                 LogEvent cepEvent = new LogEvent();
                 cepEvent.setLog(data);
                 if(headers != null) {
@@ -88,7 +88,7 @@ public class CEPSink1 extends AbstractSink implements Configurable {
 
             tx.commit();
         } catch (Exception e) {
-            logger.error("can't process events, drop it!", e);
+            logger.error("can't process CEPElements, drop it!", e);
             if (tx != null) {
                 tx.commit();// commit to drop bad event, otherwise it will enter dead loop.
             }

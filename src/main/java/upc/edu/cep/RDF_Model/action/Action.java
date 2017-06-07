@@ -4,7 +4,7 @@ import upc.edu.cep.Interpreter.Interpreter;
 import upc.edu.cep.Interpreter.InterpreterContext;
 import upc.edu.cep.Interpreter.InterpreterException;
 import upc.edu.cep.RDF_Model.condition.Operand;
-import upc.edu.cep.RDF_Model.event.SimpleEvent;
+import upc.edu.cep.RDF_Model.event.Event;
 
 import java.util.*;
 
@@ -13,7 +13,7 @@ import java.util.*;
  */
 public class Action implements Interpreter {
 
-    private SimpleEvent associatedEvent;
+    private Event associatedEvent;
     private String assocociatedEventTopic;
     private List<Operand> actionAttributes;
     private ActionType actionType;
@@ -21,7 +21,7 @@ public class Action implements Interpreter {
     private List<String> topicNames;
     private String IRI;
 
-    public Action(SimpleEvent associatedEvent, String associatedEventTopic, List<Operand> actionAttributes, ActionType actionType, String serviceURL, List<String> topicNames, String IRI) {
+    public Action(Event associatedEvent, String associatedEventTopic, List<Operand> actionAttributes, ActionType actionType, String serviceURL, List<String> topicNames, String IRI) {
         this.associatedEvent = associatedEvent;
         this.assocociatedEventTopic = associatedEventTopic;
         this.actionAttributes = actionAttributes;
@@ -44,11 +44,11 @@ public class Action implements Interpreter {
         this.IRI = IRI;
     }
 
-    public SimpleEvent getAssociatedEvent() {
+    public Event getAssociatedEvent() {
         return associatedEvent;
     }
 
-    public void setAssociatedEvent(SimpleEvent associatedEvent) {
+    public void setAssociatedEvent(Event associatedEvent) {
         this.associatedEvent = associatedEvent;
     }
 
@@ -92,13 +92,13 @@ public class Action implements Interpreter {
         return topicNames;
     }
 
-    public void setTopicNames(List<String> topicNames) {
-        this.topicNames = topicNames;
-    }
-
     public void setTopicNames(String[] topicNames) {
         this.topicNames = new ArrayList<String>();
         Collections.addAll(this.topicNames, topicNames);
+    }
+
+    public void setTopicNames(List<String> topicNames) {
+        this.topicNames = topicNames;
     }
 
     public void addTopics(String[] topicNames) {

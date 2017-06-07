@@ -14,8 +14,8 @@ import java.util.Queue;
  */
 public class FlumeSource {
 
-    AtomicEvent event;
-    //    AtomicEvent atomicEvent;
+    EventSchema event;
+    //    EventSchema atomicEvent;
     private String zookeeperConnect;
     private String streamType;
     private String agentName;
@@ -40,11 +40,11 @@ public class FlumeSource {
         this.streamType = streamType;
     }
 
-    public AtomicEvent getEvent() {
+    public EventSchema getEvent() {
         return event;
     }
 
-    public void setEvent(AtomicEvent event) {
+    public void setEvent(EventSchema event) {
         this.event = event;
     }
 
@@ -107,13 +107,13 @@ public class FlumeSource {
         );
         boolean filter = false;
         for (FlumeSink flumeSink : flumeSinks) {
-            Queue<Event> eventQueue = new ArrayDeque<>();
-            eventQueue.add(flumeSink.getRule().getEvent());
-            while (!eventQueue.isEmpty()) {
-                Event head = eventQueue.poll();
-                if (head.getClass().equals(SimpleEvent.class)) {
-                    SimpleEvent e = (SimpleEvent) head;
-                    if (e.getAtomicEvent().getIRI().equals(event.getIRI())) {
+            Queue<CEPElement> CEPElementQueue = new ArrayDeque<>();
+            CEPElementQueue.add(flumeSink.getRule().getCEPElement());
+            while (!CEPElementQueue.isEmpty()) {
+                CEPElement head = CEPElementQueue.poll();
+                if (head.getClass().equals(Event.class)) {
+                    Event e = (Event) head;
+                    if (e.getEventSchema().getIRI().equals(event.getIRI())) {
                         if (!e.getFilters().isEmpty()) {
                             for (SimpleClause sc : e.getFilters()) {
                                 LiteralOperand lo;
@@ -134,8 +134,8 @@ public class FlumeSource {
                         }
                     }
                 } else if (!event.getClass().equals(TimeEvent.class)) {
-                    for (Event e : ((ComplexEvent) head).getEvents()) {
-                        eventQueue.add(e);
+                    for (CEPElement e : ((Pattern) head).getCEPElements()) {
+                        CEPElementQueue.add(e);
                     }
                 }
             }

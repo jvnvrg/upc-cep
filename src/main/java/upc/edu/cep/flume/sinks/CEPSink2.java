@@ -30,12 +30,12 @@ public class CEPSink2 extends AbstractSink implements Configurable {
 
         // Configuration
         Configuration config = new Configuration();
-        config.addEventType("com.edu.cep.events.LogEvent",LogEvent.class.getName());
+        config.addEventType("com.edu.cep.CEPElements.LogEvent", LogEvent.class.getName());
          epService = EPServiceProviderManager.getDefaultProvider(config);
 
 
         // Creating a Statement
-        String expression = "select count(log) from com.edu.cep.events.LogEvent.win:time(2 sec)"; //time_batch
+        String expression = "select count(log) from com.edu.cep.CEPElements.LogEvent.win:time(2 sec)"; //time_batch
         EPStatement statement = epService.getEPAdministrator().createEPL(expression);
 
 
@@ -78,7 +78,7 @@ public class CEPSink2 extends AbstractSink implements Configurable {
                 /*System.out.println(data);
                 System.out.println(headers.get("hostname"));
                 System.out.println(Long.parseLong(headers.get("timestamp")));*/
-                // Sending events
+                // Sending CEPElements
                 LogEvent cepEvent = new LogEvent();
                 cepEvent.setLog(data);
                 if(headers != null) {
@@ -94,7 +94,7 @@ public class CEPSink2 extends AbstractSink implements Configurable {
 
             tx.commit();
         } catch (Exception e) {
-            logger.error("can't process events, drop it!", e);
+            logger.error("can't process CEPElements, drop it!", e);
             if (tx != null) {
                 tx.commit();// commit to drop bad event, otherwise it will enter dead loop.
             }

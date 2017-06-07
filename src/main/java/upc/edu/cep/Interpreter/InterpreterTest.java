@@ -27,19 +27,19 @@ public class InterpreterTest {
 //        group by a.custId
 //        having sum(b.price) > 100
 
-        //Event and Attributes
+        //CEPElement and Attributes
         Attribute custIda = new Attribute();
         custIda.setName("custId");
         Attribute name = new Attribute();
         name.setName("name");
 
-        AtomicEvent serviceOrdera = new AtomicEvent();
+        EventSchema serviceOrdera = new EventSchema();
         serviceOrdera.setEventName("ServiceOrder");
         serviceOrdera.addAttribute(custIda);
         serviceOrdera.addAttribute(name);
 
-        SimpleEvent serviceOrder = new SimpleEvent();
-        serviceOrder.setAtomicEvent(serviceOrdera);
+        Event serviceOrder = new Event();
+        serviceOrder.setEventSchema(serviceOrdera);
 
         custIda.setEvent(serviceOrdera);
         name.setEvent(serviceOrdera);
@@ -49,19 +49,19 @@ public class InterpreterTest {
         Attribute custIdb = new Attribute();
         custIdb.setName("custId");
 
-        AtomicEvent productOrdera = new AtomicEvent();
+        EventSchema productOrdera = new EventSchema();
         productOrdera.setEventName("ProductOrder");
         productOrdera.addAttribute(price);
         productOrdera.addAttribute(custIdb);
 
-        SimpleEvent productOrder = new SimpleEvent();
-        productOrder.setAtomicEvent(productOrdera);
+        Event productOrder = new Event();
+        productOrder.setEventSchema(productOrdera);
 
         price.setEvent(productOrdera);
         custIdb.setEvent(productOrdera);
 
         Sequence sequence = new Sequence();
-        ComplexTemporalEvent sequenceEvent = new ComplexTemporalEvent();
+        TemporalPattern sequenceEvent = new TemporalPattern();
         sequenceEvent.setTemporalOperator(sequence);
         sequenceEvent.addEvents(serviceOrder);
         sequenceEvent.addEvents(productOrder);
@@ -70,7 +70,7 @@ public class InterpreterTest {
         within.setOffset(1);
         within.setTimeUnit(TimeUnit.minute);
 
-        ComplexTemporalEvent withinEvent = new ComplexTemporalEvent();
+        TemporalPattern withinEvent = new TemporalPattern();
         withinEvent.setTemporalOperator(within);
         withinEvent.addEvents(sequenceEvent);
 
@@ -138,7 +138,7 @@ public class InterpreterTest {
 
         //Rule
         Rule rule = new Rule();
-        rule.setEvent(withinEvent);
+        rule.setCEPElement(withinEvent);
         rule.setWindow(window);
         rule.setAction(action);
         rule.setCondition(allCondition);
@@ -152,7 +152,7 @@ public class InterpreterTest {
         Attribute a = new Attribute();
         a.setName("A");
 
-        AtomicEvent event1 = new AtomicEvent();
+        EventSchema event1 = new EventSchema();
         event1.setEventName("Event1");
         event1.addAttribute(a);
 
@@ -162,7 +162,7 @@ public class InterpreterTest {
         within.setOffset(2);
         within.setTimeUnit(TimeUnit.second);
 
-        ComplexTemporalEvent temporalEvent = new ComplexTemporalEvent();
+        TemporalPattern temporalEvent = new TemporalPattern();
         temporalEvent.setTemporalOperator(within);
         temporalEvent.addEvents(event1);
 
@@ -179,7 +179,7 @@ public class InterpreterTest {
         action.addActionAttribute(count);
 
         Rule rule = new Rule();
-        rule.setEvent(temporalEvent);
+        rule.setCEPElement(temporalEvent);
         rule.setWindow(window);
         rule.setAction(action);
 

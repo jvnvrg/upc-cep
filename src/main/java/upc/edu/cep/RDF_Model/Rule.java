@@ -5,7 +5,7 @@ import upc.edu.cep.Interpreter.InterpreterContext;
 import upc.edu.cep.Interpreter.InterpreterException;
 import upc.edu.cep.RDF_Model.action.Action;
 import upc.edu.cep.RDF_Model.condition.Condition;
-import upc.edu.cep.RDF_Model.event.Event;
+import upc.edu.cep.RDF_Model.event.CEPElement;
 import upc.edu.cep.RDF_Model.window.Window;
 
 import java.util.HashMap;
@@ -19,17 +19,17 @@ public class Rule implements Interpreter {
 
     String IRI;
     Condition condition;
-    Event event;
+    CEPElement CEPElement;
     Action action;
     Window window;
 
     public Rule() {
     }
 
-    public Rule(Condition condition, Event event, Action action, Window window, String IRI) {
+    public Rule(Condition condition, CEPElement CEPElement, Action action, Window window, String IRI) {
         this.IRI = IRI;
         this.condition = condition;
-        this.event = event;
+        this.CEPElement = CEPElement;
         this.action = action;
         this.window = window;
     }
@@ -42,12 +42,12 @@ public class Rule implements Interpreter {
         this.condition = condition;
     }
 
-    public Event getEvent() {
-        return event;
+    public CEPElement getCEPElement() {
+        return CEPElement;
     }
 
-    public void setEvent(Event event) {
-        this.event = event;
+    public void setCEPElement(CEPElement CEPElement) {
+        this.CEPElement = CEPElement;
     }
 
     public Action getAction() {
@@ -84,8 +84,8 @@ public class Rule implements Interpreter {
                 } else {
                     rule += "*";
                 }
-                if (event != null)
-                    rule += " from pattern [every " + event.interpret(context) + "]";
+                if (CEPElement != null)
+                    rule += " from pattern [every " + CEPElement.interpret(context) + "]";
                 if (window != null)
                     rule += window.interpret(context) + " ";
                 if (condition != null) {

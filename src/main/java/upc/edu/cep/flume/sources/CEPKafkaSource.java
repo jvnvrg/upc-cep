@@ -72,7 +72,7 @@ import static scala.collection.JavaConverters.asJavaListConverter;
  * <p>
  * <tt>kafka.consumer.*: </tt> Any property starting with "kafka.consumer" will be
  * passed to the kafka consumer So you can use any configuration supported by Kafka 0.9.0.X
- * <tt>useFlumeEventFormat: </tt> Reads events from Kafka Topic as an Avro FlumeEvent. Used
+ * <tt>useFlumeEventFormat: </tt> Reads CEPElements from Kafka Topic as an Avro FlumeEvent. Used
  * in conjunction with useFlumeEventFormat (Kafka Sink) or parseAsFlumeEvent (Kafka Channel)
  * <p>
  */
@@ -297,7 +297,7 @@ public class CEPKafkaSource extends AbstractPollableSource
 
                 if (log.isDebugEnabled()) {
                     log.debug("Waited: {} ", System.currentTimeMillis() - batchStartTime);
-                    log.debug("Event #: {}", eventList.size());
+                    log.debug("CEPElement #: {}", eventList.size());
                 }
 
                 // For each partition store next offset that is going to be read.
@@ -311,7 +311,7 @@ public class CEPKafkaSource extends AbstractPollableSource
                 getChannelProcessor().processEventBatch(eventList);
                 counter.addToEventAcceptedCount(eventList.size());
                 if (log.isDebugEnabled()) {
-                    log.debug("Wrote {} events to channel", eventList.size());
+                    log.debug("Wrote {} CEPElements to channel", eventList.size());
                 }
                 eventList.clear();
 
@@ -684,7 +684,7 @@ class SourceRebalanceListener implements ConsumerRebalanceListener {
         this.rebalanceFlag = rebalanceFlag;
     }
 
-    // Set a flag that a rebalance has occurred. Then commit already read events to kafka.
+    // Set a flag that a rebalance has occurred. Then commit already read CEPElements to kafka.
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
         for (TopicPartition partition : partitions) {
             log.info("topic {} - partition {} revoked.", partition.topic(), partition.partition());

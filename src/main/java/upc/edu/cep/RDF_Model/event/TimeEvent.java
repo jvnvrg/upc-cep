@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Created by osboxes on 23/05/17.
  */
-public class TimeEvent extends Event {
+public class TimeEvent extends CEPElement {
 
     Timestamp timestamp;
 

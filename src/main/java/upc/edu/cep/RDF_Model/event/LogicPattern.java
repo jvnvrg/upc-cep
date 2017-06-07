@@ -12,25 +12,25 @@ import java.util.Map;
 /**
  * Created by osboxes on 15/05/17.
  */
-public class ComplexLogicEvent extends ComplexEvent {
+public class LogicPattern extends Pattern {
 
     protected LogicOperator logicOperator;
 
-    public ComplexLogicEvent() {
+    public LogicPattern() {
         super();
     }
 
-    public ComplexLogicEvent(LogicOperator logicOperator, LinkedList<Event> events) {
-        super(events);
+    public LogicPattern(LogicOperator logicOperator, LinkedList<CEPElement> CEPElements) {
+        super(CEPElements);
         this.logicOperator = logicOperator;
     }
 
-    public ComplexLogicEvent(String IRI) {
+    public LogicPattern(String IRI) {
         super(IRI);
     }
 
-    public ComplexLogicEvent(LogicOperator logicOperator, LinkedList<Event> events, String IRI) {
-        super(events, IRI);
+    public LogicPattern(LogicOperator logicOperator, LinkedList<CEPElement> CEPElements, String IRI) {
+        super(CEPElements, IRI);
         this.logicOperator = logicOperator;
     }
 
@@ -45,12 +45,12 @@ public class ComplexLogicEvent extends ComplexEvent {
 
     @Override
     public String interpret(InterpreterContext context) throws InterpreterException {
-        LinkedList<Event> copy = new LinkedList<>(events);
+        LinkedList<CEPElement> copy = new LinkedList<>(CEPElements);
         switch (context) {
             case ESPER: {
                 if (logicOperator.getOperator().equals(LogicOperatorEnum.Conjunction) || logicOperator.getOperator().equals(LogicOperatorEnum.Disjunction)) {
 
-                    Event head = copy.pollFirst();
+                    CEPElement head = copy.pollFirst();
                     String logicalEvent = "(" + head.interpret(context) + ")";
                     head = copy.pollFirst();
                     while (head != null) {
@@ -68,7 +68,7 @@ public class ComplexLogicEvent extends ComplexEvent {
             default: {
 
                 if (logicOperator.getOperator().equals(LogicOperatorEnum.Conjunction) || logicOperator.getOperator().equals(LogicOperatorEnum.Disjunction)) {
-                    Event head = copy.pollFirst();
+                    CEPElement head = copy.pollFirst();
                     String logicalEvent = "(" + head.interpret(context) + ")";
                     head = copy.pollFirst();
                     while (head != null) {

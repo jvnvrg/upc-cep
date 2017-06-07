@@ -9,10 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import upc.edu.cep.events.LogEvent;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 /**
@@ -30,12 +26,12 @@ public class fecSink extends AbstractSink implements Configurable {
 
         // Configuration
         Configuration config = new Configuration();
-        config.addEventType("com.edu.cep.events.LogEvent",LogEvent.class.getName());
+        config.addEventType("com.edu.cep.CEPElements.LogEvent", LogEvent.class.getName());
          epService = EPServiceProviderManager.getDefaultProvider(config);
 
 
         // Creating a Statement
-        String expression = "select log from com.edu.cep.events.LogEvent"; //time_batch
+        String expression = "select log from com.edu.cep.CEPElements.LogEvent"; //time_batch
         EPStatement statement = epService.getEPAdministrator().createEPL(expression);
 
 
@@ -78,7 +74,7 @@ public class fecSink extends AbstractSink implements Configurable {
                 /*System.out.println(data);
                 System.out.println(headers.get("hostname"));
                 System.out.println(Long.parseLong(headers.get("timestamp")));*/
-                // Sending events
+                // Sending CEPElements
                 LogEvent cepEvent = new LogEvent();
                 cepEvent.setLog(data);
                 if(headers != null) {
@@ -94,7 +90,7 @@ public class fecSink extends AbstractSink implements Configurable {
 
             tx.commit();
         } catch (Exception e) {
-            logger.error("can't process events, drop it!", e);
+            logger.error("can't process CEPElements, drop it!", e);
             if (tx != null) {
                 tx.commit();// commit to drop bad event, otherwise it will enter dead loop.
             }

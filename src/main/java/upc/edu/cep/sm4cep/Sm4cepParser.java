@@ -6,8 +6,8 @@
 //import upc.edu.cep.RDF_Model.Rule;
 //import upc.edu.cep.RDF_Model.event.Attribute;
 //import upc.edu.cep.RDF_Model.event.AttributeType;
+//import upc.edu.cep.RDF_Model.event.CEPElement;
 //import upc.edu.cep.RDF_Model.event.Event;
-//import upc.edu.cep.RDF_Model.event.SimpleEvent;
 //import upc.edu.cep.RDF_Model.window.Window;
 //
 //import java.util.LinkedList;
@@ -166,7 +166,7 @@
 //        return windowType;
 //    }
 //
-//    // get Event part of a Rule
+//    // get CEPElement part of a Rule
 //
 //    public TimeUnit getWindowUnit(String windowIRI) throws WindowException {
 //
@@ -211,15 +211,15 @@
 //        return windowUnit;
 //    }
 //
-//    public Event getEvent(String ruleIRI) {
-//        Event event = null;
+//    public CEPElement getCEPElement(String ruleIRI) {
+//        CEPElement event = null;
 //
 //        return event;
 //    }
 //
 //    // get simple event
-//    public SimpleEvent getSimpleEvent(String eventIRI) {
-//        SimpleEvent simpleEvent = new SimpleEvent();
+//    public Event getSimpleEvent(String eventIRI) {
+//        Event simpleEvent = new Event();
 //        simpleEvent.setAttributes(new LinkedList<Attribute>());
 //
 //        simpleEvent.setEventName(eventIRI);// TODO: check if there needs to be the event IRI and the event name
@@ -251,9 +251,9 @@
 //    }
 //
 //    // get complex event
-///*	public ComplexTemporalEvent getComplexTemporalEvent(String eventIRI) {
-//		ComplexTemporalEvent complexTemporalEvent = new ComplexTemporalEvent() ;
-//		//complexTemporalEvent.setEvents(new LinkedList<Event>()); // TODO: remove this if a new constructor is added that automatically does this
+///*	public TemporalPattern getComplexTemporalEvent(String eventIRI) {
+//		TemporalPattern complexTemporalEvent = new TemporalPattern() ;
+//		//complexTemporalEvent.setCEPElements(new LinkedList<CEPElement>()); // TODO: remove this if a new constructor is added that automatically does this
 //
 //        String qGetTemporalOperator =
 //
@@ -294,10 +294,10 @@
 //		return simpleEvent;
 //	}
 //	*/
-//    // get the list of events for a complex event
-//    public LinkedList<Event> getComplexEventList(String eventIRI) {
+//    // get the list of CEPElements for a complex event
+//    public LinkedList<CEPElement> getComplexEventList(String eventIRI) {
 //
-//        LinkedList<Event> eventList = new LinkedList<Event>();
+//        LinkedList<CEPElement> eventList = new LinkedList<CEPElement>();
 //
 //        String qGetEventList =
 //
@@ -328,7 +328,7 @@
 //                System.out.println("Error with parsing event list element order: " + e);
 //            }
 //
-//            Event eventInList = this.getEvent(eventString); // this will be recursive call until it is resolved with simple elements or a complex element that has no elements
+//            CEPElement eventInList = this.getCEPElement(eventString); // this will be recursive call until it is resolved with simple elements or a complex element that has no elements
 //            try {
 //                eventList.add(order, eventInList);
 //            } catch (IndexOutOfBoundsException ioobx) {
@@ -377,7 +377,7 @@
 //        return text;
 //    }
 //
-//    public String stringSimpleEvent(SimpleEvent se) {
+//    public String stringSimpleEvent(Event se) {
 //        String text = "";
 //        text += "Simple event: " + se.getEventName() + "\n";
 //        List<Attribute> attributes = se.getAttributes();

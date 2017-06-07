@@ -81,24 +81,24 @@ public class FlumeSink {
                 , prefix + ManagerConstants.CEP_SINK_CHANNEL + " = " + flumeChannel.getChannelName()
         );
 
-        List<SimpleEvent> simpleEvents = new ArrayList<>();
-        Queue<Event> eventQueue = new ArrayDeque<>();
-        eventQueue.add(rule.getEvent());
-        while (!eventQueue.isEmpty()) {
-            Event event = eventQueue.poll();
-            if (event.getClass().equals(SimpleEvent.class)) {
-                simpleEvents.add((SimpleEvent) event);
-            } else if (!event.getClass().equals(TimeEvent.class)) {
-                for (Event e : ((ComplexEvent) event).getEvents()) {
-                    eventQueue.add(e);
+        List<Event> simpleEvents = new ArrayList<>();
+        Queue<CEPElement> CEPElementQueue = new ArrayDeque<>();
+        CEPElementQueue.add(rule.getCEPElement());
+        while (!CEPElementQueue.isEmpty()) {
+            CEPElement CEPElement = CEPElementQueue.poll();
+            if (CEPElement.getClass().equals(Event.class)) {
+                simpleEvents.add((Event) CEPElement);
+            } else if (!CEPElement.getClass().equals(TimeEvent.class)) {
+                for (CEPElement e : ((Pattern) CEPElement).getCEPElements()) {
+                    CEPElementQueue.add(e);
                 }
             }
         }
 
         String events = "";
         String actions = "";
-        for (SimpleEvent e : simpleEvents) {
-            events += " " + e.getAtomicEvent().getEventName();
+        for (Event e : simpleEvents) {
+            events += " " + e.getEventSchema().getEventName();
         }
         for (Operand o : rule.getAction().getActionAttributes()) {
             actions += " " + o.interpret(InterpreterContext.ESPER);
@@ -107,18 +107,18 @@ public class FlumeSink {
                 , prefix + ManagerConstants.CEP_SINK_EVENT_NAMES + " = " + events
                 , prefix + ManagerConstants.CEP_SINK_ACTIONS + " = " + actions
         );
-        for (SimpleEvent e : simpleEvents) {
+        for (Event e : simpleEvents) {
             String eventAtts = "";
-            for (Attribute attribute : e.getAtomicEvent().getAttributes()) {
+            for (Attribute attribute : e.getEventSchema().getAttributes()) {
                 eventAtts += " " + attribute.getName();
             }
             eventAtts = eventAtts.trim();
             result = String.join("\n", result
-                    , prefix + e.getAtomicEvent().getEventName() + ManagerConstants.DOT + ManagerConstants.CEP_SINK_EVENT_ATTRIBUTES + " = " + eventAtts
+                    , prefix + e.getEventSchema().getEventName() + ManagerConstants.DOT + ManagerConstants.CEP_SINK_EVENT_ATTRIBUTES + " = " + eventAtts
             );
-            for (Attribute attribute : e.getAtomicEvent().getAttributes()) {
+            for (Attribute attribute : e.getEventSchema().getAttributes()) {
                 result = String.join("\n", result
-                        , prefix + e.getAtomicEvent().getEventName() + ManagerConstants.DOT + attribute.getName() + ManagerConstants.DOT + ManagerConstants.TYPE + " = " + attribute.getAttributeType().toString());
+                        , prefix + e.getEventSchema().getEventName() + ManagerConstants.DOT + attribute.getName() + ManagerConstants.DOT + ManagerConstants.TYPE + " = " + attribute.getAttributeType().toString());
             }
         }
 

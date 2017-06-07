@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Created by osboxes on 14/04/17.
  */
-public class AtomicEvent extends Event {
+public class EventSchema extends CEPElement {
 
     private String eventName;
 
@@ -20,24 +20,24 @@ public class AtomicEvent extends Event {
     private List<Attribute> attributes;
 
 
-    public AtomicEvent(String IRI, String eventName, List<Attribute> attributes) {
+    public EventSchema(String IRI, String eventName, List<Attribute> attributes) {
         super(IRI);
         this.eventName = eventName;
         this.attributes = attributes;
     }
 
-    public AtomicEvent(String eventName, List<Attribute> attributes) {
+    public EventSchema(String eventName, List<Attribute> attributes) {
         super();
         this.eventName = eventName;
         this.attributes = attributes;
     }
 
-    public AtomicEvent(String IRI) {
+    public EventSchema(String IRI) {
         super(IRI);
         this.attributes = new ArrayList<>();
     }
 
-    public AtomicEvent() {
+    public EventSchema() {
         super();
         this.attributes = new ArrayList<>();
     }

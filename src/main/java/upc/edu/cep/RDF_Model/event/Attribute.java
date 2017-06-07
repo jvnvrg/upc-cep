@@ -14,13 +14,13 @@ public class Attribute extends Operand {
 
     private String name;
     private AttributeType attributeType;
-    private AtomicEvent event;
+    private EventSchema event;
 
     public Attribute() {
         super();
     }
 
-    public Attribute(String name, AttributeType attributeType, AtomicEvent event) {
+    public Attribute(String name, AttributeType attributeType, EventSchema event) {
         super();
         this.name = name;
         this.event = event;
@@ -30,7 +30,7 @@ public class Attribute extends Operand {
         super(IRI);
     }
 
-    public Attribute(String name, AttributeType attributeType, String IRI, AtomicEvent event) {
+    public Attribute(String name, AttributeType attributeType, String IRI, EventSchema event) {
         super(IRI);
         this.name = name;
         this.event = event;
@@ -52,11 +52,11 @@ public class Attribute extends Operand {
         this.attributeType = attributeType;
     }
 
-    public AtomicEvent getEvent() {
+    public EventSchema getEvent() {
         return event;
     }
 
-    public void setEvent(AtomicEvent event) {
+    public void setEvent(EventSchema event) {
         this.event = event;
     }
 

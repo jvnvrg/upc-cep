@@ -1,10 +1,6 @@
 package upc.edu.cep.flume.sinks;
 
-import org.apache.flume.Channel;
-import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.EventDeliveryException;
-import org.apache.flume.Transaction;
+import org.apache.flume.*;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventHelper;
 import org.apache.flume.sink.AbstractSink;
@@ -48,13 +44,14 @@ public class LoggerSink extends AbstractSink implements Configurable {
                 String data = new String(body);
 
                 logger.debug(data);
+                System.out.println(data);
             } else {
                 status = Status.BACKOFF;
             }
 
             tx.commit();
         } catch (Exception e) {
-            logger.error("can't process events, drop it!", e);
+            logger.error("can't process CEPElements, drop it!", e);
             if (tx != null) {
                 tx.commit();// commit to drop bad event, otherwise it will enter dead loop.
             }

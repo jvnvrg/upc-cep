@@ -12,25 +12,25 @@ import java.util.Map;
 /**
  * Created by osboxes on 15/05/17.
  */
-public class ComplexTemporalEvent extends ComplexEvent {
+public class TemporalPattern extends Pattern {
 
     protected TemporalOperator temporalOperator;
 
-    public ComplexTemporalEvent() {
+    public TemporalPattern() {
         super();
     }
 
-    public ComplexTemporalEvent(TemporalOperator temporalOperator, LinkedList<Event> events) {
-        super(events);
+    public TemporalPattern(TemporalOperator temporalOperator, LinkedList<CEPElement> CEPElements) {
+        super(CEPElements);
         this.temporalOperator = temporalOperator;
     }
 
-    public ComplexTemporalEvent(String IRI) {
+    public TemporalPattern(String IRI) {
         super(IRI);
     }
 
-    public ComplexTemporalEvent(TemporalOperator temporalOperator, LinkedList<Event> events, String IRI) {
-        super(events, IRI);
+    public TemporalPattern(TemporalOperator temporalOperator, LinkedList<CEPElement> CEPElements, String IRI) {
+        super(CEPElements, IRI);
         this.temporalOperator = temporalOperator;
     }
 
@@ -44,11 +44,11 @@ public class ComplexTemporalEvent extends ComplexEvent {
 
     @Override
     public String interpret(InterpreterContext context) throws InterpreterException {
-        LinkedList<Event> copy = new LinkedList<>(events);
+        LinkedList<CEPElement> copy = new LinkedList<>(CEPElements);
         switch (context) {
             case ESPER: {
                 if (temporalOperator.getOperator().equals(TemporalOperatorEnum.Sequence)) {
-                    Event head = copy.pollFirst();
+                    CEPElement head = copy.pollFirst();
                     String logicalEvent = head.interpret(context);
                     head = copy.pollFirst();
                     while (head != null) {
@@ -65,7 +65,7 @@ public class ComplexTemporalEvent extends ComplexEvent {
             }
             default: {
                 if (temporalOperator.getOperator().equals(TemporalOperatorEnum.Sequence)) {
-                    Event head = copy.pollFirst();
+                    CEPElement head = copy.pollFirst();
                     String logicalEvent = "(" + head.interpret(context) + ")";
                     head = copy.pollFirst();
                     while (head != null) {

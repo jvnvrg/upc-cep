@@ -15,7 +15,7 @@ import java.util.List;
  * Created by osboxes on 01/06/17.
  */
 public class managerTest {
-    private static List<AtomicEvent> atomicEvents = new ArrayList<>();
+    private static List<EventSchema> eventSchemas = new ArrayList<>();
     private static List<Rule> rules = new ArrayList<>();
 
     public static void main(String[] args) throws Exception {
@@ -23,7 +23,7 @@ public class managerTest {
         //System.out.println(FlumeChannel.Interpret("AAA", "CCC"));
         Manager manager = new Manager();
         createRule();
-        System.out.println(manager.CreateConfiguration("agent", atomicEvents, rules, "localhost:2181", "json", false, "rule2"));
+        System.out.println(manager.CreateConfiguration("agent", eventSchemas, rules, "localhost:2181", "json", false, "rule2"));
 
 
     }
@@ -36,7 +36,7 @@ public class managerTest {
 //        group by a.custId
 //        having sum(b.price) > 100
 
-        //Event and Attributes
+        //CEPElement and Attributes
         Attribute custIda = new Attribute();
         custIda.setIRI("custIda");
         custIda.setName("custId");
@@ -46,18 +46,18 @@ public class managerTest {
         name.setName("name");
         name.setAttributeType(AttributeType.TYPE_STRING);
 
-        AtomicEvent serviceOrdera = new AtomicEvent();
+        EventSchema serviceOrdera = new EventSchema();
         serviceOrdera.setTopicName("ServiceOrderTopic");
         serviceOrdera.setIRI("ServiceOrder");
         serviceOrdera.setEventName("ServiceOrder");
         serviceOrdera.addAttribute(custIda);
         serviceOrdera.addAttribute(name);
 
-        atomicEvents.add(serviceOrdera);
+        eventSchemas.add(serviceOrdera);
 
-        SimpleEvent serviceOrder = new SimpleEvent();
+        Event serviceOrder = new Event();
         serviceOrder.setIRI("ServiceOrder-simple");
-        serviceOrder.setAtomicEvent(serviceOrdera);
+        serviceOrder.setEventSchema(serviceOrdera);
 
         custIda.setEvent(serviceOrdera);
         name.setEvent(serviceOrdera);
@@ -71,24 +71,24 @@ public class managerTest {
         custIdb.setIRI("custIdb");
         custIdb.setName("custId");
 
-        AtomicEvent productOrdera = new AtomicEvent();
+        EventSchema productOrdera = new EventSchema();
         productOrdera.setTopicName("ProductOrderTopic");
         productOrdera.setIRI("ProductOrder");
         productOrdera.setEventName("ProductOrder");
         productOrdera.addAttribute(price);
         productOrdera.addAttribute(custIdb);
 
-        atomicEvents.add(productOrdera);
+        eventSchemas.add(productOrdera);
 
-        SimpleEvent productOrder = new SimpleEvent();
+        Event productOrder = new Event();
         productOrder.setIRI("ProductOrder-simple");
-        productOrder.setAtomicEvent(productOrdera);
+        productOrder.setEventSchema(productOrdera);
 
         price.setEvent(productOrdera);
         custIdb.setEvent(productOrdera);
 
         Sequence sequence = new Sequence();
-        ComplexTemporalEvent sequenceEvent = new ComplexTemporalEvent();
+        TemporalPattern sequenceEvent = new TemporalPattern();
         sequenceEvent.setTemporalOperator(sequence);
         sequenceEvent.addEvents(serviceOrder);
         sequenceEvent.addEvents(productOrder);
@@ -97,7 +97,7 @@ public class managerTest {
         within.setOffset(1);
         within.setTimeUnit(TimeUnit.minute);
 
-        ComplexTemporalEvent withinEvent = new ComplexTemporalEvent();
+        TemporalPattern withinEvent = new TemporalPattern();
         withinEvent.setTemporalOperator(within);
         withinEvent.addEvents(sequenceEvent);
 
@@ -171,7 +171,7 @@ public class managerTest {
         //Rule
         Rule rule = new Rule();
         rule.setIRI("rule1");
-        rule.setEvent(withinEvent);
+        rule.setCEPElement(withinEvent);
         rule.setWindow(window);
         rule.setAction(action);
         rule.setCondition(allCondition);
