@@ -16,6 +16,7 @@ public class Window implements Interpreter {
     private String IRI;
     private WindowType windowType;
     private int within;
+    private WindowUnit windowUnit;
     private TimeUnit timeUnit;
 
     public Window() {
@@ -26,6 +27,15 @@ public class Window implements Interpreter {
         this.windowType = windowType;
         this.within = within;
         this.timeUnit = timeUnit;
+        this.windowUnit = WindowUnit.TIME;
+    }
+
+
+    public Window(WindowType windowType, int within, String IRI) {
+        this.IRI = IRI;
+        this.windowType = windowType;
+        this.within = within;
+        this.windowUnit = WindowUnit.EVENT;
     }
 
     public WindowType getWindowType() {
@@ -59,6 +69,7 @@ public class Window implements Interpreter {
     public void setIRI(String IRI) {
         this.IRI = IRI;
     }
+
 
     @Override
     public String interpret(InterpreterContext context) throws InterpreterException {
