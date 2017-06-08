@@ -38,6 +38,7 @@ public class Window implements Interpreter {
         this.windowUnit = WindowUnit.EVENT;
     }
 
+
     public WindowType getWindowType() {
         return windowType;
     }
@@ -70,6 +71,13 @@ public class Window implements Interpreter {
         this.IRI = IRI;
     }
 
+    public WindowUnit getWindowUnit() {
+        return windowUnit;
+    }
+
+    public void setWindowUnit(WindowUnit windowUnit) {
+        this.windowUnit = windowUnit;
+    }
 
     @Override
     public String interpret(InterpreterContext context) throws InterpreterException {
