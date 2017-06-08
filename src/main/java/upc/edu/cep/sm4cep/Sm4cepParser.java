@@ -5,21 +5,29 @@ import org.apache.jena.rdf.model.RDFNode;
 
 import upc.edu.cep.RDF_Model.Operators.TimeUnit;
 import upc.edu.cep.RDF_Model.Rule;
+import upc.edu.cep.RDF_Model.condition.SimpleClause;
 import upc.edu.cep.RDF_Model.event.Attribute;
 import upc.edu.cep.RDF_Model.event.AttributeType;
+import upc.edu.cep.RDF_Model.event.CEPElement;
 import upc.edu.cep.RDF_Model.event.Event;
 import upc.edu.cep.RDF_Model.event.EventSchema;
 import upc.edu.cep.RDF_Model.window.Window;
 import upc.edu.cep.RDF_Model.window.WindowType;
 import upc.edu.cep.RDF_Model.window.WindowUnit;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Sm4cepParser {
 
     private String endpoint = "http://localhost:8890/sparql";
+    private HashMap<String, EventSchema> eventSchemata = new HashMap<String, EventSchema> ();
+    private HashMap<String, Attribute> eventAttributes = new HashMap<String, Attribute> ();
 
     public Sm4cepParser() {
 
@@ -213,15 +221,22 @@ public class Sm4cepParser {
         return windowUnit;
     }
 
-    public Event getEvent(String ruleIRI) {
+    
+    // get CEP elements for a given rule
+    public CEPElement getCEPElement(String ruleIRI) {
         Event event = null;
 
         return event;
     }
 
-    /*****
-    // get simple event
-    public SimpleEvent getSimpleEvent(String eventIRI) {
+    
+    // get event
+    /*public Event getEvent(String eventIRI) {
+    	Event event = new Event(eventIRI);
+    	
+    	EventSchema eventSchema = this.getEventSchema();
+    	
+    	
         SimpleEvent simpleEvent = new SimpleEvent();
         simpleEvent.setAttributes(new LinkedList<Attribute>());
 
@@ -251,9 +266,160 @@ public class Sm4cepParser {
         }
 
         return simpleEvent;
-    }
-*****/
+    }*/
 
+    // get event for an event IRI
+    public Event getEvent (String eventIRI) throws CEPElementException {
+    	Event event = new Event (eventIRI);
+    	
+    	EventSchema eventSchema = this.getEventSchema(eventIRI);
+    	event.setEventSchema(eventSchema);
+    	
+    	// TODO: get filters
+    	
+    	return event;
+    }
+    
+    // get event schema for an event IRI
+    public EventSchema getEventSchema (String eventIRI) throws CEPElementException{
+
+    	EventSchema eventSchema = null;
+    	
+    	String qGetEventSchemaIRI =
+
+                "PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+
+                        " SELECT DISTINCT ?eventSchemaIRI \n" +
+                        " WHERE { \n" +
+                        eventIRI + " sm4cep:hasEventSchema ?eventSchemaIRI . \n" +
+                        "?eventSchemaIRI a sm4cep:EventSchema . \n" +
+                        "} ";
+
+        ResultSet results = this.runAQuery(qGetEventSchemaIRI, endpoint);
+        String eventSchemaIRI = "";
+    	
+        if (results.hasNext()) {
+            QuerySolution soln = results.nextSolution();
+
+            RDFNode eventSchemaNode = soln.get("eventSchemaIRI");
+            eventSchemaIRI = formatIRI(eventSchemaNode.toString());
+        }
+	    else {
+	    	throw new CEPElementException("Event does not have schema defined!");
+	    }
+    	if (results.hasNext()){
+    		throw new CEPElementException("Event has more than 1 schema defined!");
+    	}
+        
+    	if (this.eventSchemata.containsKey(eventSchemaIRI)){ // event schema already exists
+    		eventSchema = this.eventSchemata.get(eventSchemaIRI);
+    	}
+    	else { // we need to retrieve the element schema
+    		eventSchema = new EventSchema(eventSchemaIRI);
+    		
+    		String qGetEventSchemaAttributes =
+
+                    "PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+
+                            " SELECT DISTINCT ?eventAttribute \n" +
+                            " WHERE { \n" +
+                            eventSchemaIRI + " sm4cep:hasEventAttribute ?eventAttribute . \n" +
+                            "?eventAttribute a sm4cep:EventAttribute . \n" +
+                            "} ";
+
+            ResultSet results2 = this.runAQuery(qGetEventSchemaAttributes, endpoint);
+
+            while (results2.hasNext()) {
+                QuerySolution soln2 = results2.nextSolution();
+
+                RDFNode eventAttributeNode = soln2.get("eventAttribute");
+                String eventAttributeString = formatIRI(eventAttributeNode.toString());
+
+                Attribute eventAttribute = new Attribute(eventAttributeString); // TODO: we don't know element type here... in principle, we can always set it to string as default value
+                eventAttribute.setEvent(eventSchema);
+                this.eventAttributes.put(eventAttributeString, eventAttribute); // add attribute to the list of all attributes (needed for the filters definition)
+                eventSchema.addAttribute(eventAttribute); // TODO: here we can add duplicate check, i.e., if the list already contains this elements                
+            }
+    	}
+    	
+    	if (eventSchema != null)
+    		return eventSchema;
+    	else
+    		throw new CEPElementException ("No event schema...");
+    }
+    
+    // get filters in a rule for an event
+    public List<SimpleClause> getFiltersOverEvent (String ruleIRI, String eventSchemaIRI){
+    	
+    	ArrayList<String> filterIRIs = new ArrayList<String> (); // list of all filters, i.e., simple clauses in a rule for an event
+    	
+    	String qGetFilters =
+
+                "PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+
+                        " SELECT DISTINCT ?filter \n" +
+                        " WHERE { \n" +
+                        ruleIRI + " sm4cep:hasFilter ?filter . \n" +
+                        "?filter a sm4cep:SimpleClause . \n" +
+                        "?filter sm4cep:hasLeftOperand ?attribute . \n" +
+                        eventSchemaIRI + " sm4cep:hasEventAttribute ?attribute . \n" + // TODO: this might be implemented in the other way such that we iterate over the attribute hashmap
+                        "} ";
+
+        ResultSet results = this.runAQuery(qGetFilters, endpoint);
+
+        while (results.hasNext()) {
+            QuerySolution soln = results.nextSolution();
+
+            RDFNode filterNode = soln.get("filter");
+            String filterString = formatIRI(filterNode.toString());
+            filterIRIs.add(filterString);           
+        }
+    	
+    	return null; 
+    }
+    
+    public SimpleClause getFilter (String filterIRI) throws CEPElementException{ // here the assumption of well formatting is that the attribute operation is always on the left side
+    	SimpleClause filter = new SimpleClause(filterIRI);
+    	
+    	String qGetFilter =
+
+                "PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+
+                        " SELECT DISTINCT ?left ?leftType ?right ?rightType ?operator \n" +
+                        " WHERE { \n" +
+                        filterIRI + " sm4cep:hasLeftOperand ?left . \n" +
+                        "?left a ?leftType . \n" +
+                        filterIRI + " sm4cep:hasRightOperand ?right . \n" +
+                        "?right a ?rightType . \n" +
+                        filterIRI + " sm4cep:hasComparisonOperator ?operator . \n" +
+                        "} ";
+
+        ResultSet results = this.runAQuery(qGetFilter, endpoint);
+
+        if (results.hasNext()) {
+            QuerySolution soln = results.nextSolution();
+
+            RDFNode leftTypeNode = soln.get("leftType");
+            String leftTypeIRI = formatIRI(leftTypeNode.toString());
+            // TODO: Continue here...
+        }
+        else {
+        	throw new CEPElementException ("Filter misses  internals!");
+        }
+    	
+    	return null; 
+    }
+    
+    
+    /*Iterator it = this.hierarchies.entrySet().iterator();
+    while (it.hasNext()) {
+        Map.Entry pair = (Map.Entry)it.next();
+        String hierarchyIRI = pair.getKey().toString();
+        int value = (int)pair.getValue();	    
+        
+        s += "\t" + hierarchyIRI + ": " + value + "\n";  
+    }*/
+    
     // get complex event
 /*	public ComplexTemporalEvent getComplexTemporalEvent(String eventIRI) {
 		ComplexTemporalEvent complexTemporalEvent = new ComplexTemporalEvent() ;
@@ -299,7 +465,7 @@ public class Sm4cepParser {
 	}
 	*/
     // get the list of events for a complex event
-    public LinkedList<Event> getComplexEventList(String eventIRI) {
+    /*public LinkedList<Event> getComplexEventList(String eventIRI) {
 
         LinkedList<Event> eventList = new LinkedList<Event>();
 
@@ -341,7 +507,7 @@ public class Sm4cepParser {
         }
 
         return eventList;
-    }
+    }*/
 
     private ResultSet runAQuery(String sparqlQuery, String endpoint) {
         Query query = QueryFactory.create(sparqlQuery);
