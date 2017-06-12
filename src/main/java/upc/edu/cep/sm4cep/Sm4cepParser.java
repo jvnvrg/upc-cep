@@ -1,16 +1,22 @@
 package upc.edu.cep.sm4cep;
 
+import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.RDFNode;
 
+import upc.edu.cep.RDF_Model.Operators.ComparasionOperator;
+import upc.edu.cep.RDF_Model.Operators.ComparasionOperatorEnum;
 import upc.edu.cep.RDF_Model.Operators.TimeUnit;
 import upc.edu.cep.RDF_Model.Rule;
+import upc.edu.cep.RDF_Model.condition.LiteralOperand;
+import upc.edu.cep.RDF_Model.condition.Operand.OperandType;
 import upc.edu.cep.RDF_Model.condition.SimpleClause;
 import upc.edu.cep.RDF_Model.event.Attribute;
 import upc.edu.cep.RDF_Model.event.AttributeType;
 import upc.edu.cep.RDF_Model.event.CEPElement;
 import upc.edu.cep.RDF_Model.event.Event;
 import upc.edu.cep.RDF_Model.event.EventSchema;
+import upc.edu.cep.RDF_Model.event.TimeEvent;
 import upc.edu.cep.RDF_Model.window.Window;
 import upc.edu.cep.RDF_Model.window.WindowType;
 import upc.edu.cep.RDF_Model.window.WindowUnit;
@@ -25,9 +31,11 @@ import java.util.Scanner;
 
 public class Sm4cepParser {
 
+	private String sm4cepNamespace = "http://www.essi.upc.edu/~jvarga/sm4cep/"; // the namespace address
+	
     private String endpoint = "http://localhost:8890/sparql";
-    private HashMap<String, EventSchema> eventSchemata = new HashMap<String, EventSchema> ();
-    private HashMap<String, Attribute> eventAttributes = new HashMap<String, Attribute> ();
+    private HashMap<String, EventSchema> eventSchemata = new HashMap<String, EventSchema> (); // all event schemata, something like event schemata cash 
+    private HashMap<String, Attribute> eventAttributes = new HashMap<String, Attribute> (); // all event attributes, something like event attributes cash
 
     public Sm4cepParser() {
 
@@ -96,7 +104,7 @@ public class Sm4cepParser {
 
         String qGetWindow =
 
-                "PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+                "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
 
                         " SELECT DISTINCT ?w \n" +
                         " WHERE { \n" +
@@ -140,7 +148,7 @@ public class Sm4cepParser {
 
         String qGetWindowKind =
 
-                "PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+                "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
 
                         " SELECT DISTINCT ?windowKind \n" +
                         " WHERE { \n" +
@@ -160,13 +168,13 @@ public class Sm4cepParser {
             RDFNode windowKindNode = soln.get("windowKind");
             String windowKind = formatIRI(windowKindNode.toString());
 
-            if (windowKind.equalsIgnoreCase("sm4cep:SlidingWindow") ||
-                    windowKind.equalsIgnoreCase("http://www.essi.upc.edu/~jvarga/sm4cep/SlidingWindow") ||
-                    windowKind.equalsIgnoreCase("<http://www.essi.upc.edu/~jvarga/sm4cep/SlidingWindow>")) {
+            if (windowKind.equalsIgnoreCase("sm4cep:SlidingWindow") || // TODO: use the equalsToSm4cepElement method here 
+                    windowKind.equalsIgnoreCase(sm4cepNamespace + "SlidingWindow") ||
+                    windowKind.equalsIgnoreCase("<"+ sm4cepNamespace + "SlidingWindow>")) {
                 windowType = WindowType.SLIDING_WINDOW;
-            } else if (windowKind.equalsIgnoreCase("sm4cep:TumblingWindow") ||
-                    windowKind.equalsIgnoreCase("http://www.essi.upc.edu/~jvarga/sm4cep/TumblingWindow") ||
-                    windowKind.equalsIgnoreCase("<http://www.essi.upc.edu/~jvarga/sm4cep/TumblingWindow>")) {
+            } else if (windowKind.equalsIgnoreCase("sm4cep:TumblingWindow") || // TODO: use the equalsToSm4cepElement method here 
+                    windowKind.equalsIgnoreCase(sm4cepNamespace + "TumblingWindow") ||
+                    windowKind.equalsIgnoreCase("<"+ sm4cepNamespace + "TumblingWindow>")) {
                 windowType = WindowType.TUMBLING_WINDOW;
             }
 
@@ -184,7 +192,7 @@ public class Sm4cepParser {
 
         String qGetWindowUnit =
 
-                "PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+                "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
 
                         " SELECT DISTINCT ?windowUnit \n" +
                         " WHERE { \n" +
@@ -204,13 +212,13 @@ public class Sm4cepParser {
             RDFNode windowUnitNode = soln.get("windowUnit");
             String windowUnitString = formatIRI(windowUnitNode.toString());
 
-            if (windowUnitString.equalsIgnoreCase("sm4cep:TimeUnit") ||
-                    windowUnitString.equalsIgnoreCase("http://www.essi.upc.edu/~jvarga/sm4cep/TimeUnit") ||
-                    windowUnitString.equalsIgnoreCase("<http://www.essi.upc.edu/~jvarga/sm4cep/TimeUnit>")) {
+            if (windowUnitString.equalsIgnoreCase("sm4cep:TimeUnit") || // TODO: use the equalsToSm4cepElement method here 
+                    windowUnitString.equalsIgnoreCase(sm4cepNamespace + "TimeUnit") ||
+                    windowUnitString.equalsIgnoreCase("<"+ sm4cepNamespace + "TimeUnit>")) {
                 windowUnit = WindowUnit.TIME;
-            } else if (windowUnitString.equalsIgnoreCase("sm4cep:EventUnit") ||
-                    windowUnitString.equalsIgnoreCase("http://www.essi.upc.edu/~jvarga/sm4cep/EventUnit") ||
-                    windowUnitString.equalsIgnoreCase("<http://www.essi.upc.edu/~jvarga/sm4cep/EventUnit>")) {
+            } else if (windowUnitString.equalsIgnoreCase("sm4cep:EventUnit") || // TODO: use the equalsToSm4cepElement method here 
+                    windowUnitString.equalsIgnoreCase(sm4cepNamespace + "EventUnit") ||
+                    windowUnitString.equalsIgnoreCase("<"+ sm4cepNamespace + "EventUnit>")) {
                 windowUnit = WindowUnit.EVENT; 
             }
 
@@ -268,6 +276,8 @@ public class Sm4cepParser {
         return simpleEvent;
     }*/
 
+    /*****   GET EVENT   *****/
+    
     // get event for an event IRI
     public Event getEvent (String eventIRI) throws CEPElementException {
     	Event event = new Event (eventIRI);
@@ -275,7 +285,8 @@ public class Sm4cepParser {
     	EventSchema eventSchema = this.getEventSchema(eventIRI);
     	event.setEventSchema(eventSchema);
     	
-    	// TODO: get filters
+    	LinkedList<SimpleClause> filters = this.getFiltersOverEvent(eventIRI);
+    	event.setFilters(filters);
     	
     	return event;
     }
@@ -287,7 +298,7 @@ public class Sm4cepParser {
     	
     	String qGetEventSchemaIRI =
 
-                "PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+                "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
 
                         " SELECT DISTINCT ?eventSchemaIRI \n" +
                         " WHERE { \n" +
@@ -319,7 +330,7 @@ public class Sm4cepParser {
     		
     		String qGetEventSchemaAttributes =
 
-                    "PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+                    "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
 
                             " SELECT DISTINCT ?eventAttribute \n" +
                             " WHERE { \n" +
@@ -348,14 +359,44 @@ public class Sm4cepParser {
     		throw new CEPElementException ("No event schema...");
     }
     
-    // get filters in a rule for an event
-    public List<SimpleClause> getFiltersOverEvent (String ruleIRI, String eventSchemaIRI){
+    // get filters for an event
+    public LinkedList<SimpleClause> getFiltersOverEvent (String eventIRI) throws CEPElementException{
     	
-    	ArrayList<String> filterIRIs = new ArrayList<String> (); // list of all filters, i.e., simple clauses in a rule for an event
+    	LinkedList<SimpleClause> filters = new LinkedList<SimpleClause> (); // list of all filters, i.e., simple clauses in a rule for an event
     	
     	String qGetFilters =
 
-                "PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+                "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
+
+                        " SELECT DISTINCT ?filter \n" +
+                        " WHERE { \n" +
+                        "?filter a sm4cep:SimpleClause . \n" +
+                        "?filter sm4cep:hasLeftOperand ?attribute . \n" +
+                        "?attribute sm4cep:forEvent " + eventIRI + " . \n" + 
+                        "} ";
+
+        ResultSet results = this.runAQuery(qGetFilters, endpoint);
+
+        while (results.hasNext()) {
+            QuerySolution soln = results.nextSolution();
+
+            RDFNode filterNode = soln.get("filter");
+            String filterString = formatIRI(filterNode.toString());
+            filters.add(this.getFilter(filterString));           
+        }
+        
+    	return filters; 
+    }
+    
+    
+    /* // INITIAL VERSION until the SM4CEP change from 12/6/2017 // get filters in a rule for an event
+    public LinkedList<SimpleClause> getFiltersOverEvent (String ruleIRI, String eventSchemaIRI) throws CEPElementException{
+    	
+    	LinkedList<SimpleClause> filters = new LinkedList<SimpleClause> (); // list of all filters, i.e., simple clauses in a rule for an event
+    	
+    	String qGetFilters =
+
+                "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
 
                         " SELECT DISTINCT ?filter \n" +
                         " WHERE { \n" +
@@ -372,18 +413,19 @@ public class Sm4cepParser {
 
             RDFNode filterNode = soln.get("filter");
             String filterString = formatIRI(filterNode.toString());
-            filterIRIs.add(filterString);           
+            filters.add(this.getFilter(filterString));           
         }
-    	
-    	return null; 
-    }
+        
+    	return filters; 
+    }*/
     
-    public SimpleClause getFilter (String filterIRI) throws CEPElementException{ // here the assumption of well formatting is that the attribute operation is always on the left side
+    public SimpleClause getFilter (String filterIRI) throws CEPElementException{ // here the assumption of well formatting is that the attribute operand is always on the left side, 
+    	// while the right operand is literal and the operator needs to be an SM4CEP comparison operator
     	SimpleClause filter = new SimpleClause(filterIRI);
     	
     	String qGetFilter =
 
-                "PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+                "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
 
                         " SELECT DISTINCT ?left ?leftType ?right ?rightType ?operator \n" +
                         " WHERE { \n" +
@@ -399,16 +441,148 @@ public class Sm4cepParser {
         if (results.hasNext()) {
             QuerySolution soln = results.nextSolution();
 
+            // getting left (i.e., number 1) operand
             RDFNode leftTypeNode = soln.get("leftType");
             String leftTypeIRI = formatIRI(leftTypeNode.toString());
-            // TODO: Continue here...
+            if (this.equalsToSm4cepElement(leftTypeIRI, "UsedAttribute")) {
+                 
+            	RDFNode leftNode = soln.get("left");
+                String leftOperandIRI = formatIRI(leftNode.toString());
+                
+                String qGetAttributeType =
+
+                        "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
+
+                                " SELECT DISTINCT ?attributeType \n" +
+                                " WHERE { \n" +
+                                leftOperandIRI + " sm4cep:forAttribute ?attributeType . \n" +
+                                "} ";
+                
+                ResultSet results2 = this.runAQuery(qGetAttributeType, endpoint);
+                String attributeTypeIRI;
+                if (results2.hasNext()) {
+                    QuerySolution soln2 = results2.nextSolution();
+
+                    // getting left (i.e., number 1) operand
+                    RDFNode attributeTypeNode = soln2.get("attributeType");
+                    attributeTypeIRI = formatIRI(attributeTypeNode.toString());
+                }
+                else {
+                	throw new CEPElementException("Used attribute does not have event attribute type defined!");
+                }
+                if (results2.hasNext()) {
+                	throw new CEPElementException("Used attribute has more than one event attribute type defined!");            
+                }
+                               
+                Attribute eAttribute = this.eventAttributes.get(attributeTypeIRI); // the event attribute should have been already retrieved with the event schema
+                if (eAttribute != null){
+                	eAttribute.setOperandType(OperandType.other); // since it is not 'group by' neither 'having', it is 'other'
+                	filter.setOperand1(eAttribute);
+                }
+                else {
+                	throw new CEPElementException ("The definition of the event attribute is not retrieved with the event schema definition!");
+                }                
+            }
+            else {
+            	throw new CEPElementException("Left operand is not (defined as) an event attribute!");
+            }
+            
+            // getting right (i.e., number 2) operand
+            RDFNode rightTypeNode = soln.get("rightType");
+            String rightTypeIRI = formatIRI(rightTypeNode.toString());
+            if (this.equalsToSm4cepElement(rightTypeIRI, "Literal")) {
+                 
+            	RDFNode rightNode = soln.get("right");
+                String rightOperand = formatIRI(rightNode.toString());             
+                if (rightOperand != null){
+                	LiteralOperand rightOp = new LiteralOperand();
+                	rightOp.setValue(rightOperand);
+                	rightOp.setOperandType(OperandType.other); // since it is a literal it belongs to 'other'
+                	filter.setOperand2(rightOp);
+                }
+                else {
+                	throw new CEPElementException ("The literal in the filter is not defined!");
+                }                
+            }
+            else {
+            	throw new CEPElementException("Right operand is not (defined as) an event attribute!");
+            }     
+            
+         	// getting operator
+            RDFNode operatorNode = soln.get("operator");
+            String operatorIRI = formatIRI(operatorNode.toString());
+            ComparasionOperator operator = null;
+            
+            if (this.equalsToSm4cepElement(operatorIRI, "Equal"))
+            	operator = new ComparasionOperator(ComparasionOperatorEnum.EQ);
+            else if (this.equalsToSm4cepElement(operatorIRI, "NotEqual"))
+            	operator = new ComparasionOperator(ComparasionOperatorEnum.NE);
+            else if (this.equalsToSm4cepElement(operatorIRI, "GreaterThan"))
+            	operator = new ComparasionOperator(ComparasionOperatorEnum.GT);
+            else if (this.equalsToSm4cepElement(operatorIRI, "GreaterOrEqual"))
+            	operator = new ComparasionOperator(ComparasionOperatorEnum.GE);
+            else if (this.equalsToSm4cepElement(operatorIRI, "LessThan"))
+            	operator = new ComparasionOperator(ComparasionOperatorEnum.LT);
+            else if (this.equalsToSm4cepElement(operatorIRI, "LessOrEqual"))
+            	operator = new ComparasionOperator(ComparasionOperatorEnum.LE);
+            
+            if (operator != null) {
+            	filter.setOperator(operator);
+            }
+            else {
+            	throw new CEPElementException("Operator does not belong to the SM4CEP comparison operators!");
+            }
         }
         else {
         	throw new CEPElementException ("Filter misses  internals!");
         }
+        if (results.hasNext()) {
+        	throw new CEPElementException("More than one result for elements belonging to a single filter!"); 
+        }
     	
-    	return null; 
+    	return filter; 
     }
+    
+    
+    /*****   GET TIME EVENT   *****/
+    
+    // get time event event IRI
+    public TimeEvent getTimeEvent (String timeEventIRI) throws CEPElementException {
+    	TimeEvent timeEvent = new TimeEvent (timeEventIRI);
+    	
+    	String qGetTimeStamp =
+
+                "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
+
+                        " SELECT DISTINCT ?timeStamp \n" +
+                        " WHERE { \n" +
+                        timeEventIRI + " sm4cep:hasTimeStamp ?timeStamp . \n" +
+                        "} ";
+        
+        ResultSet results2 = this.runAQuery(qGetTimeStamp, endpoint);
+
+        if (results2.hasNext()) {
+            QuerySolution soln2 = results2.nextSolution();
+
+            // getting left (i.e., number 1) operand
+            RDFNode timeStampNode = soln2.get("timeStamp");
+            String timeStamp = formatIRI(timeStampNode.toString());
+            
+	        // TODO: CONTINUE HERE
+        }
+        else {
+        	throw new CEPElementException("");
+        }
+        if (results2.hasNext()) {
+        	throw new CEPElementException("");            
+        }
+    	
+    	return null;
+    }
+    
+    
+    
+    
     
     
     /*Iterator it = this.hierarchies.entrySet().iterator();
@@ -523,6 +697,15 @@ public class Sm4cepParser {
             return "<" + iri + ">";
         else
             return iri;
+    }
+    
+    // compare if a string belongs to an sm4cep element
+    public boolean equalsToSm4cepElement(String retrievedIRI, String sm4cepElement ) {
+    	if (retrievedIRI.equalsIgnoreCase("sm4cep:" + sm4cepElement) ||
+    			retrievedIRI.equalsIgnoreCase(sm4cepNamespace + sm4cepElement) ||
+    			retrievedIRI.equalsIgnoreCase("<"+ sm4cepNamespace + sm4cepElement +">"))
+    		return true;
+    	return false;
     }
 
     // getters and setters
