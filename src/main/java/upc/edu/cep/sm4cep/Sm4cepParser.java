@@ -279,13 +279,13 @@ public class Sm4cepParser {
     /*****   GET EVENT   *****/
     
     // get event for an event IRI
-    public Event getEvent (String eventIRI) throws CEPElementException {
+    public Event getEventInRule (String eventIRI, String ruleIRI) throws CEPElementException {
     	Event event = new Event (eventIRI);
     	
     	EventSchema eventSchema = this.getEventSchema(eventIRI);
     	event.setEventSchema(eventSchema);
     	
-    	LinkedList<SimpleClause> filters = this.getFiltersOverEvent(eventIRI);
+    	LinkedList<SimpleClause> filters = this.getFiltersOverEvent(ruleIRI, eventIRI);
     	event.setFilters(filters);
     	
     	return event;
@@ -360,7 +360,7 @@ public class Sm4cepParser {
     }
     
     // get filters for an event
-    public LinkedList<SimpleClause> getFiltersOverEvent (String eventIRI) throws CEPElementException{
+    public LinkedList<SimpleClause> getFiltersOverEvent (String ruleIRI, String eventIRI) throws CEPElementException{
     	
     	LinkedList<SimpleClause> filters = new LinkedList<SimpleClause> (); // list of all filters, i.e., simple clauses in a rule for an event
     	
@@ -370,9 +370,10 @@ public class Sm4cepParser {
 
                         " SELECT DISTINCT ?filter \n" +
                         " WHERE { \n" +
-                        "?filter a sm4cep:SimpleClause . \n" +
-                        "?filter sm4cep:hasLeftOperand ?attribute . \n" +
-                        "?attribute sm4cep:forEvent " + eventIRI + " . \n" + 
+                        ruleIRI + " sm4cep:hasFilter ?filter . \n" + 
+                        " ?filter a sm4cep:SimpleClause . \n" +
+                        " ?filter sm4cep:hasLeftOperand ?attribute . \n" +
+                        " ?attribute sm4cep:forEvent " + eventIRI + " . \n" +                         
                         "} ";
 
         ResultSet results = this.runAQuery(qGetFilters, endpoint);
@@ -577,7 +578,7 @@ public class Sm4cepParser {
         	throw new CEPElementException("");            
         }
     	
-    	return null;
+    	return timeEvent;
     }
     
     
