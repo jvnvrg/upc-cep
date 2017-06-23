@@ -12,9 +12,9 @@ import java.util.Map;
  */
 public class TimeEvent extends CEPElement {
 
-    Timestamp timestamp;
+    String timestamp;
 
-    public TimeEvent(String IRI, Timestamp timestamp) {
+    public TimeEvent(String IRI, String timestamp) {
         super(IRI);
         this.timestamp = timestamp;
     }
@@ -23,20 +23,20 @@ public class TimeEvent extends CEPElement {
         super(IRI);
     }
 
-    public TimeEvent(Timestamp timestamp) {
+   /* public TimeEvent(String timestamp) {
         super();
         this.timestamp = timestamp;
-    }
+    }*/
 
     public TimeEvent() {
         super();
     }
 
-    public Timestamp getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 

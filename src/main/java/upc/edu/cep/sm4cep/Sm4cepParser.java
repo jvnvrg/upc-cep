@@ -6,7 +6,12 @@ import org.apache.jena.rdf.model.RDFNode;
 
 import upc.edu.cep.RDF_Model.Operators.ComparasionOperator;
 import upc.edu.cep.RDF_Model.Operators.ComparasionOperatorEnum;
+import upc.edu.cep.RDF_Model.Operators.LogicOperator;
+import upc.edu.cep.RDF_Model.Operators.LogicOperatorEnum;
+import upc.edu.cep.RDF_Model.Operators.Sequence;
+import upc.edu.cep.RDF_Model.Operators.TemporalOperator;
 import upc.edu.cep.RDF_Model.Operators.TimeUnit;
+import upc.edu.cep.RDF_Model.Operators.Within;
 import upc.edu.cep.RDF_Model.Rule;
 import upc.edu.cep.RDF_Model.condition.LiteralOperand;
 import upc.edu.cep.RDF_Model.condition.Operand.OperandType;
@@ -16,6 +21,9 @@ import upc.edu.cep.RDF_Model.event.AttributeType;
 import upc.edu.cep.RDF_Model.event.CEPElement;
 import upc.edu.cep.RDF_Model.event.Event;
 import upc.edu.cep.RDF_Model.event.EventSchema;
+import upc.edu.cep.RDF_Model.event.LogicPattern;
+import upc.edu.cep.RDF_Model.event.Pattern;
+import upc.edu.cep.RDF_Model.event.TemporalPattern;
 import upc.edu.cep.RDF_Model.event.TimeEvent;
 import upc.edu.cep.RDF_Model.window.Window;
 import upc.edu.cep.RDF_Model.window.WindowType;
@@ -168,13 +176,9 @@ public class Sm4cepParser {
             RDFNode windowKindNode = soln.get("windowKind");
             String windowKind = formatIRI(windowKindNode.toString());
 
-            if (windowKind.equalsIgnoreCase("sm4cep:SlidingWindow") || // TODO: use the equalsToSm4cepElement method here 
-                    windowKind.equalsIgnoreCase(sm4cepNamespace + "SlidingWindow") ||
-                    windowKind.equalsIgnoreCase("<"+ sm4cepNamespace + "SlidingWindow>")) {
+            if (this.equalsToSm4cepElement(windowKind, "SlidingWindow")) {
                 windowType = WindowType.SLIDING_WINDOW;
-            } else if (windowKind.equalsIgnoreCase("sm4cep:TumblingWindow") || // TODO: use the equalsToSm4cepElement method here 
-                    windowKind.equalsIgnoreCase(sm4cepNamespace + "TumblingWindow") ||
-                    windowKind.equalsIgnoreCase("<"+ sm4cepNamespace + "TumblingWindow>")) {
+            } else if (this.equalsToSm4cepElement(windowKind, "TumblingWindow")) {
                 windowType = WindowType.TUMBLING_WINDOW;
             }
 
@@ -212,13 +216,9 @@ public class Sm4cepParser {
             RDFNode windowUnitNode = soln.get("windowUnit");
             String windowUnitString = formatIRI(windowUnitNode.toString());
 
-            if (windowUnitString.equalsIgnoreCase("sm4cep:TimeUnit") || // TODO: use the equalsToSm4cepElement method here 
-                    windowUnitString.equalsIgnoreCase(sm4cepNamespace + "TimeUnit") ||
-                    windowUnitString.equalsIgnoreCase("<"+ sm4cepNamespace + "TimeUnit>")) {
+            if (this.equalsToSm4cepElement(windowUnitString, "TimeUnit")) {
                 windowUnit = WindowUnit.TIME;
-            } else if (windowUnitString.equalsIgnoreCase("sm4cep:EventUnit") || // TODO: use the equalsToSm4cepElement method here 
-                    windowUnitString.equalsIgnoreCase(sm4cepNamespace + "EventUnit") ||
-                    windowUnitString.equalsIgnoreCase("<"+ sm4cepNamespace + "EventUnit>")) {
+            }  else if (this.equalsToSm4cepElement(windowUnitString, "EventUnit")) {
                 windowUnit = WindowUnit.EVENT; 
             }
 
@@ -229,12 +229,44 @@ public class Sm4cepParser {
         return windowUnit;
     }
 
+    /*****   GET CEP ELEMENT   *****/
     
     // get CEP elements for a given rule
-    public CEPElement getCEPElement(String ruleIRI) {
-        Event event = null;
+    public CEPElement getCEPElement(String cepElementIRI, String ruleIRI) throws CEPElementException {
+        CEPElement cepElement = null;
+        
+        String qGetElementType =
 
-        return event;
+                "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
+
+                        " SELECT DISTINCT ?elementType \n" +
+                        " WHERE { \n" +
+                        cepElementIRI + " a ?elementType . \n" +
+                        "} ";
+        
+        ResultSet results = this.runAQuery(qGetElementType, endpoint);
+
+        if (results.hasNext()) { // ASSUMPTION IS THAT EACH RULE HAS A SINGLE CEP ELEMENT TYPE
+            QuerySolution soln = results.nextSolution();
+
+            RDFNode elementTypeNode = soln.get("elementType");
+            String elementType = formatIRI(elementTypeNode.toString());
+            
+            if (this.equalsToSm4cepElement(elementType, "Event"))
+            	cepElement = this.getEventInRule(cepElementIRI, ruleIRI);
+            else if (this.equalsToSm4cepElement(elementType, "TimeEvent"))
+            	cepElement = this.getTimeEvent(cepElementIRI);
+            else if (this.equalsToSm4cepElement(cepElementIRI, "Pattern"))
+            	cepElement = this.getPattern(cepElementIRI, ruleIRI);
+        }
+        else {
+        	throw new CEPElementException("The rule has no CEP elements!");
+        }
+        if (results.hasNext()) {
+        	throw new CEPElementException("The rule has more than one CEP element!");            
+        }
+
+        return cepElement;
     }
 
     
@@ -512,7 +544,7 @@ public class Sm4cepParser {
          	// getting operator
             RDFNode operatorNode = soln.get("operator");
             String operatorIRI = formatIRI(operatorNode.toString());
-            ComparasionOperator operator = null;
+            /*ComparasionOperator operator = null;
             
             if (this.equalsToSm4cepElement(operatorIRI, "Equal"))
             	operator = new ComparasionOperator(ComparasionOperatorEnum.EQ);
@@ -526,6 +558,8 @@ public class Sm4cepParser {
             	operator = new ComparasionOperator(ComparasionOperatorEnum.LT);
             else if (this.equalsToSm4cepElement(operatorIRI, "LessOrEqual"))
             	operator = new ComparasionOperator(ComparasionOperatorEnum.LE);
+            */
+            ComparasionOperator operator = this.getComparisonOperator(operatorIRI);
             
             if (operator != null) {
             	filter.setOperator(operator);
@@ -565,25 +599,20 @@ public class Sm4cepParser {
         if (results2.hasNext()) {
             QuerySolution soln2 = results2.nextSolution();
 
-            // getting left (i.e., number 1) operand
             RDFNode timeStampNode = soln2.get("timeStamp");
             String timeStamp = formatIRI(timeStampNode.toString());
             
-	        // TODO: CONTINUE HERE
+            timeEvent.setTimestamp(timeStamp);
         }
         else {
-        	throw new CEPElementException("");
+        	throw new CEPElementException("Time event does not have time stamp!");
         }
         if (results2.hasNext()) {
-        	throw new CEPElementException("");            
+        	throw new CEPElementException("Time event has more than one time stamp!");            
         }
     	
     	return timeEvent;
     }
-    
-    
-    
-    
     
     
     /*Iterator it = this.hierarchies.entrySet().iterator();
@@ -595,74 +624,142 @@ public class Sm4cepParser {
         s += "\t" + hierarchyIRI + ": " + value + "\n";  
     }*/
     
+    /*****   GET PATTERN   *****/
+    
+    // get CEP pattern
+    public Pattern getPattern(String patternIRI, String ruleIRI) throws CEPElementException {
+    	Pattern pattern = null;
+        
+        String qGetPatternType =
+
+                "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
+
+                        " SELECT DISTINCT ?patternType \n" +
+                        " WHERE { \n" +
+                        patternIRI + " a ?patternType . \n" +
+                        "} ";
+        
+        ResultSet results = this.runAQuery(qGetPatternType, endpoint);
+
+        if (results.hasNext()) { // ASSUMPTION IS THAT A PATTERN IS OF A SINGLE TYPE
+            QuerySolution soln = results.nextSolution();
+
+            RDFNode patternTypeNode = soln.get("patternType");
+            String patternType = formatIRI(patternTypeNode.toString());
+            
+            if (this.equalsToSm4cepElement(patternType, "TemporalPattern"))
+            	pattern = this.getTemporalPattern(patternIRI, ruleIRI);
+            else if (this.equalsToSm4cepElement(patternType, "LogicPattern"))
+            	pattern = this.getLogicPattern(patternIRI, ruleIRI);
+        }
+        else {
+        	throw new CEPElementException("The pattern has no type!");
+        }
+        if (results.hasNext()) {
+        	throw new CEPElementException("The pattern has more than one type!");            
+        }
+    	
+    	return pattern;
+    }
+    
     // get complex event
-/*	public ComplexTemporalEvent getComplexTemporalEvent(String eventIRI) {
-		ComplexTemporalEvent complexTemporalEvent = new ComplexTemporalEvent() ;
-		//complexTemporalEvent.setEvents(new LinkedList<Event>()); // TODO: remove this if a new constructor is added that automatically does this
+	public TemporalPattern getTemporalPattern(String patternIRI, String ruleIRI) throws CEPElementException {
+		TemporalPattern temporalPattern = new TemporalPattern(patternIRI) ;
 
         String qGetTemporalOperator =
 
-        		"PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+        		"PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
         		"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
 
-        		" SELECT DISTINCT ?temporalOperator ?offset \n" +
+        		" SELECT DISTINCT ?temporalOperator \n" +
         		" WHERE { \n" +
-        		eventIRI + " sm4cep:usesTemporalOperator ?temporalOperator . \n" +
-        		"?temporalOperator a ?midlewareClass . \n" +
-        		"?midlewareClass rdfs:subClassOf sm4cep:TemporalOperator . \n" +
-        		"OPTIONAL {?temporalOperator sm4cep:hasOffset ?offset } \n" +
+        		patternIRI + " sm4cep:usesTemporalOperator ?temporalOperator . \n" +
         		"} ";
 
         ResultSet results = this.runAQuery(qGetTemporalOperator, endpoint);
 
+        if (results.hasNext()) { // ASSUMPTION IS THAT A PATTERN IS OF A SINGLE TYPE
+            QuerySolution soln = results.nextSolution();
 
-        while ( results.hasNext() ) {
-      	  	QuerySolution soln = results.nextSolution() ;
-
-      	  	RDFNode temporalOperatorNode = soln.get("temporalOperator");
-      	  	String temporalOperatorString = formatIRI(temporalOperatorNode.toString());
-
-      	  	RDFNode offsetNode = soln.get("offset");
-    	  	String offsetString = formatIRI(offsetNode.toString());
-
-      	  	if (temporalOperatorString.equalsIgnoreCase("sm4cep:WithIn") ||
-      	  		temporalOperatorString.equalsIgnoreCase("http://www.essi.upc.edu/~jvarga/sm4cep/WithIn") ||
-      	  			temporalOperatorString.equalsIgnoreCase("<http://www.essi.upc.edu/~jvarga/sm4cep/WithIn>")) {
-    	  		complexTemporalEvent.setTemporalOperator(new TemporalOperator(TemporalOperatorEnum.Within),);
-    	  	}
-    	  	else if (temporalOperatorString.equalsIgnoreCase("sm4cep:Sequence") ||
-    	  			temporalOperatorString.equalsIgnoreCase("http://www.essi.upc.edu/~jvarga/sm4cep/Sequence") ||
-    	  				temporalOperatorString.equalsIgnoreCase("<http://www.essi.upc.edu/~jvarga/sm4cep/Sequence>")) {
-    	  		complexTemporalEvent.setTemporalOperator(new TemporalOperator(TemporalOperatorEnum.Sequence));
+            RDFNode operatorNode = soln.get("temporalOperator");
+            String operator = formatIRI(operatorNode.toString());
+            
+            temporalPattern.setTemporalOperator(this.getTemporalOperator(operator));
         }
+        else {
+        	throw new CEPElementException("The temporal pattern has no operator!");
+        }
+        if (results.hasNext()) {
+        	throw new CEPElementException("The temporal pattern has more than one operator!");            
+        }
+        
+        temporalPattern.setCEPElements(this.getCEPElementsList(patternIRI, ruleIRI));
+        
 
-		return simpleEvent;
+		return temporalPattern;
 	}
-	*/
-    // get the list of events for a complex event
-    /*public LinkedList<Event> getComplexEventList(String eventIRI) {
+	
+	// get complex event
+	public LogicPattern getLogicPattern(String patternIRI, String ruleIRI) throws CEPElementException {
+		LogicPattern logicPattern = new LogicPattern(patternIRI) ;
 
-        LinkedList<Event> eventList = new LinkedList<Event>();
+        String qGetLogicOperator =
 
-        String qGetEventList =
+        		"PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
+        		"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
 
-                "PREFIX sm4cep: <http://www.essi.upc.edu/~jvarga/sm4cep/> \n" +
+        		" SELECT DISTINCT ?logicOperator \n" +
+        		" WHERE { \n" +
+        		patternIRI + " sm4cep:usesLogicOperator ?logicOperator . \n" +
+        		"} ";
 
-                        " SELECT DISTINCT ?event ?order \n" +
+        ResultSet results = this.runAQuery(qGetLogicOperator, endpoint);
+
+        if (results.hasNext()) { // ASSUMPTION IS THAT A PATTERN IS OF A SINGLE TYPE
+            QuerySolution soln = results.nextSolution();
+
+            RDFNode operatorNode = soln.get("logicOperator");
+            String operator = formatIRI(operatorNode.toString());
+            
+            logicPattern.setLogicOperator(this.getLogicOperator(operator));
+        }
+        else {
+        	throw new CEPElementException("The logic pattern has no operator!");
+        }
+        if (results.hasNext()) {
+        	throw new CEPElementException("The logic pattern has more than one operator!");            
+        }
+        
+        logicPattern.setCEPElements(this.getCEPElementsList(patternIRI, ruleIRI));
+        
+
+		return logicPattern;
+	}
+	
+    // get the list of events for an event pattern
+    public LinkedList<CEPElement> getCEPElementsList(String patternIRI, String ruleIRI) throws CEPElementException {
+
+        LinkedList<CEPElement> elementsList = new LinkedList<CEPElement>();
+
+        String qGetPatternList =
+
+                "PREFIX sm4cep: <" + this.sm4cepNamespace + "> \n" +
+
+                        " SELECT DISTINCT ?element ?order \n" +
                         " WHERE { \n" +
-                        eventIRI + " sm4cep:containsEvent ?includedEvent . \n" +
-                        "?includedEvent sm4cep:representsEvent ?event . \n" +
-                        "?includedEvent sm4cep:hasEventOrder ?order . \n" +
+                        patternIRI + " sm4cep:containsElement ?includedElement . \n" +
+                        "?includedElement sm4cep:representsElement ?element . \n" +
+                        "?includedElement sm4cep:hasElementOrder ?order . \n" +
                         "} ";
 
-        ResultSet results = this.runAQuery(qGetEventList, endpoint);
+        ResultSet results = this.runAQuery(qGetPatternList, endpoint);
 
 
         while (results.hasNext()) {
             QuerySolution soln = results.nextSolution();
 
-            RDFNode eventNode = soln.get("event");
-            String eventString = formatIRI(eventNode.toString());
+            RDFNode elementNode = soln.get("element");
+            String elementString = formatIRI(elementNode.toString());
 
             RDFNode orderNode = soln.get("order");
             int order = -1;
@@ -673,16 +770,95 @@ public class Sm4cepParser {
                 System.out.println("Error with parsing event list element order: " + e);
             }
 
-            Event eventInList = this.getEvent(eventString); // this will be recursive call until it is resolved with simple elements or a complex element that has no elements
+            CEPElement elementInList = this.getCEPElement(elementString, ruleIRI); // this will be recursive call until it is resolved with simple elements or a complex element that has no elements
             try {
-                eventList.add(order, eventInList);
+                elementsList.add(order, elementInList);
             } catch (IndexOutOfBoundsException ioobx) {
-                eventList.add(eventInList); // if the element doesn't have element specified or is greater than the current number of elements in the list, it will be added to the end
+            	elementsList.add(elementInList); // if the element doesn't have element specified or is greater than the current number of elements in the list, it will be added to the end
             }
         }
 
-        return eventList;
-    }*/
+        return elementsList;
+    }
+    
+    /*****   GET OPERATORS   *****/
+    
+    // get temporal operators - here we focus on within and sequence operators that are defined in our ontology
+    public TemporalOperator getTemporalOperator(String operatorIRI) throws CEPElementException  {
+    	TemporalOperator tempOp = null;
+    	
+    	if (this.equalsToSm4cepElement(operatorIRI, "Sequence")) {
+    		tempOp = new Sequence(operatorIRI);
+    	} else if (this.equalsToSm4cepElement(operatorIRI, "WithIn")) {
+    		String qGetWithInOffset =
+
+            		"PREFIX sm4cep: <" + this.sm4cepNamespace + "> \n" + 
+            		"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+
+            		" SELECT DISTINCT ?temporalOperator ?offset \n" +
+            		" WHERE { \n" +
+            		operatorIRI + " a sm4cep:OperatorWithExplicitTime . \n" + 
+            		operatorIRI + " sm4cep:hasOffset ?offset . \n" +
+            		"} ";
+
+            ResultSet results = this.runAQuery(qGetWithInOffset, endpoint);
+            
+            if (results.hasNext()) {
+                QuerySolution soln = results.nextSolution();
+
+                // getting left (i.e., number 1) operand
+                RDFNode offsetNode = soln.get("offset");
+                int offset = offsetNode.asLiteral().getInt(); 
+                //String offset = formatIRI(offsetNode.toString());
+                  
+    	        tempOp = new Within(offset, TimeUnit.millisecond, operatorIRI); // NOTE: Here we assume that the offset is in milliseconds
+            }
+            else {
+            	throw new CEPElementException("There is no offset for the within operator!");
+            }
+            if (results.hasNext()) {
+            	throw new CEPElementException("There is more than one offset for the within operator!");            
+            }
+    	}
+    	
+        return tempOp;
+    }
+    
+    // get logic operator - covering the ones available in the ontology
+    public LogicOperator getLogicOperator(String operatorIRI) throws CEPElementException {
+    	LogicOperator operator = null; 
+    	
+    	if (this.equalsToSm4cepElement(operatorIRI, "Conjunction"))
+        	operator = new LogicOperator(LogicOperatorEnum.Conjunction);
+        else if (this.equalsToSm4cepElement(operatorIRI, "Disjunction"))
+        	operator = new LogicOperator(LogicOperatorEnum.Disjunction);
+        else if (this.equalsToSm4cepElement(operatorIRI, "Negation"))
+        	operator = new LogicOperator(LogicOperatorEnum.Negation);
+    	
+    	return operator;
+    }
+    
+    // get comparison operator - focusing on the operators specified in our ontology
+    public ComparasionOperator getComparisonOperator(String operatorIRI) {
+        ComparasionOperator operator = null;
+        
+        if (this.equalsToSm4cepElement(operatorIRI, "Equal"))
+        	operator = new ComparasionOperator(ComparasionOperatorEnum.EQ);
+        else if (this.equalsToSm4cepElement(operatorIRI, "NotEqual"))
+        	operator = new ComparasionOperator(ComparasionOperatorEnum.NE);
+        else if (this.equalsToSm4cepElement(operatorIRI, "GreaterThan"))
+        	operator = new ComparasionOperator(ComparasionOperatorEnum.GT);
+        else if (this.equalsToSm4cepElement(operatorIRI, "GreaterOrEqual"))
+        	operator = new ComparasionOperator(ComparasionOperatorEnum.GE);
+        else if (this.equalsToSm4cepElement(operatorIRI, "LessThan"))
+        	operator = new ComparasionOperator(ComparasionOperatorEnum.LT);
+        else if (this.equalsToSm4cepElement(operatorIRI, "LessOrEqual"))
+        	operator = new ComparasionOperator(ComparasionOperatorEnum.LE);
+        
+        return operator;
+    }
+    
+    /*****   RDF MANAGEMENT AND QUERYING SPARQL ENDPOINT   *****/
 
     private ResultSet runAQuery(String sparqlQuery, String endpoint) {
         Query query = QueryFactory.create(sparqlQuery);
