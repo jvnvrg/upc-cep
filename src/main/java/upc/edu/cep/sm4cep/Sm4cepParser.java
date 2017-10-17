@@ -91,8 +91,11 @@ public class Sm4cepParser {
 
             	//SimpleClause c = p1.getSimpleClause("sm4cep:test1");
             	
-            	Sm4cepParserTests test = new Sm4cepParserTests();
-            	test.testCompleteCondition(p1);
+            	//p1.getAllEventSchemata ();
+            	p1.getRule(iri);
+            	
+            	//Sm4cepParserTests test = new Sm4cepParserTests();
+            	//test.testCompleteCondition(p1);
             	
             } catch (Exception e) {
                 System.out.println("Error:\n" + e);
@@ -273,7 +276,7 @@ public class Sm4cepParser {
             " WHERE { \n" +
             ruleIRI + " a sm4cep:Rule . \n" +
             ruleIRI + " sm4cep:hasCEPElement ?e . \n" +
-            "?e a sm4cep:CEPElement . \n" +
+            //"?e a sm4cep:CEPElement . \n" +
             "} ";
 
         ResultSet results = this.runAQuery(qGetCEPElement, endpoint);
@@ -322,7 +325,11 @@ public class Sm4cepParser {
             	cepElement = this.getEventInRule(cepElementIRI, ruleIRI);
             else if (this.equalsToSm4cepElement(elementType, "TimeEvent"))
             	cepElement = this.getTimeEvent(cepElementIRI);
-            else if (this.equalsToSm4cepElement(cepElementIRI, "Pattern"))
+            //else if (this.equalsToSm4cepElement(cepElementIRI, "Pattern"))
+            //	cepElement = this.getPattern(cepElementIRI, ruleIRI);
+            else if (this.equalsToSm4cepElement(cepElementIRI, "TemporalPattern"))
+            	cepElement = this.getPattern(cepElementIRI, ruleIRI);
+            else if (this.equalsToSm4cepElement(cepElementIRI, "LogicPattern"))
             	cepElement = this.getPattern(cepElementIRI, ruleIRI);
         }
         else {
@@ -775,7 +782,7 @@ public class Sm4cepParser {
             " WHERE { \n" +
             ruleIRI + " a sm4cep:Rule . \n" +
             ruleIRI + " sm4cep:hasCondition ?c . \n" +
-            "?c a sm4cep:Condition . \n" +
+            //"?c a sm4cep:Condition . \n" +
             "} ";
 
         ResultSet results = this.runAQuery(qGetCondition, endpoint);
@@ -841,13 +848,18 @@ public class Sm4cepParser {
     	if (left != null) {
     		clause.setOperand1(left);
     		
-    		Operand right = this.getSimpleClauseRightOperand(conditionIRI);
-        	ComparasionOperator operator = this.getSimpleClauseOperator(conditionIRI);
-    		
-        	if (right != null && operator != null) {
-        		clause.setOperand2(right);
-        		clause.setOperator(operator);
-        	}
+    		try {
+	    		Operand right = this.getSimpleClauseRightOperand(conditionIRI);
+	        	ComparasionOperator operator = this.getSimpleClauseOperator(conditionIRI);
+	    		
+	        	if (right != null && operator != null) {
+	        		clause.setOperand2(right);
+	        		clause.setOperator(operator);
+	        	}
+    		} catch (ConditionException ce) {
+    			if (!ce.toString().equalsIgnoreCase("upc.edu.cep.sm4cep.ConditionException: Right operand is missing!")) 
+    				throw new ConditionException (ce.toString());    		
+    		}
     	}
     	else {
     		throw new ConditionException ("No content for the simple clause!");
@@ -1299,7 +1311,7 @@ public class Sm4cepParser {
 
             " SELECT DISTINCT ?actionIRI \n" +
             " WHERE { \n" +
-            ruleIRI + " sm4cep:hasActionParameter ?actionIRI . \n" +
+            ruleIRI + " sm4cep:hasAction ?actionIRI . \n" +
             "} ";
         
         ResultSet results = this.runAQuery(qGetActionIRI, endpoint);
@@ -1559,4 +1571,58 @@ public class Sm4cepParser {
         return text;
     }
 
+    public void getAllEventSchemata () throws CEPElementException{
+    	
+    	String qGetEventSchemaIRI =
+
+            "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
+            "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+
+            " SELECT DISTINCT ?eventSchemaIRI \n" +
+            " WHERE { \n" +
+            "?eventSchemaIRI a sm4cep:EventSchema . \n" +
+            "} ";
+
+        ResultSet results = this.runAQuery(qGetEventSchemaIRI, endpoint);
+        String eventSchemaIRI = "";
+    	
+        if (!results.hasNext())
+        	throw new CEPElementException("Not a single event schema!");
+        while (results.hasNext()) {
+            QuerySolution soln = results.nextSolution();
+
+            RDFNode eventSchemaNode = soln.get("eventSchemaIRI");
+            eventSchemaIRI = formatIRI(eventSchemaNode.toString());
+        
+            if (!this.eventSchemata.containsKey(eventSchemaIRI)){ // we need to retrieve the element schema
+        		EventSchema eventSchema = new EventSchema(eventSchemaIRI);
+        		
+        		String qGetEventSchemaAttributes =
+
+                    "PREFIX sm4cep: <" + sm4cepNamespace + "> \n" +
+                    "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+                    		
+                    " SELECT DISTINCT ?eventAttribute \n" +
+                    " WHERE { \n" +
+                    eventSchemaIRI + " sm4cep:hasEventAttribute ?eventAttribute . \n" +
+                    "?eventAttribute a sm4cep:EventAttribute . \n" +
+                    "} ";
+
+                ResultSet results2 = this.runAQuery(qGetEventSchemaAttributes, endpoint);
+
+                while (results2.hasNext()) {
+                    QuerySolution soln2 = results2.nextSolution();
+
+                    RDFNode eventAttributeNode = soln2.get("eventAttribute");
+                    String eventAttributeString = formatIRI(eventAttributeNode.toString());
+
+                    Attribute eventAttribute = new Attribute(eventAttributeString); // TODO: we don't know element type here... in principle, we can always set it to string as default value
+                    eventAttribute.setEvent(eventSchema);
+                    this.eventAttributes.put(eventAttributeString, eventAttribute); // add attribute to the list of all attributes (needed for the filters definition)
+                    eventSchema.addAttribute(eventAttribute); // TODO: here we can add duplicate check, i.e., if the list already contains this elements                
+                }
+            }
+
+        }
+    }
 }
