@@ -4,6 +4,7 @@ import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.RDFNode;
 
+import upc.edu.cep.Interpreter.InterpreterContext;
 import upc.edu.cep.RDF_Model.Operators.ComparasionOperator;
 import upc.edu.cep.RDF_Model.Operators.ComparasionOperatorEnum;
 import upc.edu.cep.RDF_Model.Operators.LogicOperator;
@@ -92,7 +93,9 @@ public class Sm4cepParser {
             	//SimpleClause c = p1.getSimpleClause("sm4cep:test1");
             	
             	//p1.getAllEventSchemata ();
+            	p1.getAllEventSchemata();
             	p1.getRule(iri);
+            	
             	
             	//Sm4cepParserTests test = new Sm4cepParserTests();
             	//test.testCompleteCondition(p1);
@@ -113,15 +116,15 @@ public class Sm4cepParser {
         try {
             Window window = this.getWindow(ruleIRI);
             rule.setWindow(window);
-
+                        	
             CEPElement cepElement = this.getCEPElement(ruleIRI);
             rule.setCEPElement(cepElement);
-            
+                        
             Condition condition = this.getConditionForRule(ruleIRI);
-            rule.setCondition(condition);
+            rule.setCondition(condition);            
             
             Action action = this.getAction(ruleIRI);
-            rule.setAction(action);            
+            rule.setAction(action);   
             
         } catch (WindowException we) {
             System.out.println("The rule has the following window exception: \n" + we);
@@ -327,9 +330,9 @@ public class Sm4cepParser {
             	cepElement = this.getTimeEvent(cepElementIRI);
             //else if (this.equalsToSm4cepElement(cepElementIRI, "Pattern"))
             //	cepElement = this.getPattern(cepElementIRI, ruleIRI);
-            else if (this.equalsToSm4cepElement(cepElementIRI, "TemporalPattern"))
+            else if (this.equalsToSm4cepElement(elementType, "TemporalPattern"))
             	cepElement = this.getPattern(cepElementIRI, ruleIRI);
-            else if (this.equalsToSm4cepElement(cepElementIRI, "LogicPattern"))
+            else if (this.equalsToSm4cepElement(elementType, "LogicPattern"))
             	cepElement = this.getPattern(cepElementIRI, ruleIRI);
         }
         else {
@@ -416,9 +419,13 @@ public class Sm4cepParser {
 
                 Attribute eventAttribute = new Attribute(eventAttributeString); // TODO: we don't know element type here... in principle, we can always set it to string as default value
                 eventAttribute.setEvent(eventSchema);
+                eventAttribute.setName(this.getLastIRIWord(eventAttributeString)); // adding this for translation to ESPER
                 this.eventAttributes.put(eventAttributeString, eventAttribute); // add attribute to the list of all attributes (needed for the filters definition)
                 eventSchema.addAttribute(eventAttribute); // TODO: here we can add duplicate check, i.e., if the list already contains this elements                
             }
+            
+            eventSchema.setEventName(this.getLastIRIWord(eventSchemaIRI)); // adding this for translation to ESPER
+            this.eventSchemata.put(eventSchemaIRI, eventSchema);
     	}
     	
     	if (eventSchema != null)
@@ -1088,38 +1095,38 @@ public class Sm4cepParser {
     	
         if (functionTypeIRI.contains("sum") || functionTypeIRI.contains("Sum") || functionTypeIRI.contains("SUM")) {// we use comparison not to tie it to a specific IRI        	
         	function = new FunctionOperand();
-        	function.setFunctionName("Sum");
+        	function.setFunctionName("sum");
         	function.setIRI(functionIRI);
         	function.setParameters(this.getFunctionParametersList(functionIRI, functionTypeIRI));     
     	} else if (functionTypeIRI.contains("avg") || functionTypeIRI.contains("Avg") || functionTypeIRI.contains("AVG")) {
     		function = new FunctionOperand();
-        	function.setFunctionName("Avg");
+        	function.setFunctionName("avg");
         	function.setIRI(functionIRI);
         	function.setParameters(this.getFunctionParametersList(functionIRI, functionTypeIRI)); 
     	} else if (functionTypeIRI.contains("min") || functionTypeIRI.contains("Min") || functionTypeIRI.contains("MIN")) {
     		function = new FunctionOperand();
-        	function.setFunctionName("Min");
+        	function.setFunctionName("min");
         	function.setIRI(functionIRI);
         	function.setParameters(this.getFunctionParametersList(functionIRI, functionTypeIRI));
     	} else if (functionTypeIRI.contains("max") || functionTypeIRI.contains("Max") || functionTypeIRI.contains("MAX")) {
     		function = new FunctionOperand();
-        	function.setFunctionName("Max");
+        	function.setFunctionName("max");
         	function.setIRI(functionIRI);
         	function.setParameters(this.getFunctionParametersList(functionIRI, functionTypeIRI));
     	} else if (functionTypeIRI.contains("cnt") || functionTypeIRI.contains("Cnt") || functionTypeIRI.contains("CNT") || 
     			functionTypeIRI.contains("count") || functionTypeIRI.contains("Count") || functionTypeIRI.contains("COUNT")) {
     		function = new FunctionOperand();
-        	function.setFunctionName("Count");
+        	function.setFunctionName("count");
         	function.setIRI(functionIRI);
         	function.setParameters(this.getFunctionParametersList(functionIRI, functionTypeIRI));
     	} else if (functionTypeIRI.contains("having") || functionTypeIRI.contains("Having") || functionTypeIRI.contains("HAVING")) { // HAVING DOESN'T HAVE PARAMS but is defined as complex predicate
     		function = new FunctionOperand();
-        	function.setFunctionName("Avg");
+        	function.setFunctionName("having");
         	function.setIRI(functionIRI);
     	} else if (functionTypeIRI.contains("groupby") || functionTypeIRI.contains("Groupby") || functionTypeIRI.contains("GROUPBY") ||
     			functionTypeIRI.contains("groupBy") || functionTypeIRI.contains("GroupBy")) {
     		function = new FunctionOperand();
-        	function.setFunctionName("GroupBy");
+        	function.setFunctionName("group by");
         	function.setIRI(functionIRI);
         	function.setParameters(this.getFunctionParametersList(functionIRI, functionTypeIRI));
     	}
@@ -1447,7 +1454,7 @@ public class Sm4cepParser {
             while (results.hasNext()) {
                 QuerySolution soln = results.nextSolution();
 
-                RDFNode typeNode = soln.get("offset");
+                RDFNode typeNode = soln.get("type");
                 String type = formatIRI(typeNode.toString()); 
                 //String offset = formatIRI(offsetNode.toString());
                   
@@ -1457,9 +1464,8 @@ public class Sm4cepParser {
                     		"PREFIX sm4cep: <" + this.sm4cepNamespace + "> \n" + 
                     		"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
 
-                    		" SELECT DISTINCT ?temporalOperator ?offset \n" +
+                    		" SELECT DISTINCT ?offset \n" +
                     		" WHERE { \n" +
-                    		operatorIRI + " a sm4cep:OperatorWithExplicitTime . \n" + 
                     		operatorIRI + " sm4cep:hasOffset ?offset . \n" +
                     		"} ";
 
@@ -1540,6 +1546,20 @@ public class Sm4cepParser {
             return iri;
     }
     
+    // get the last word from an IRI
+    private String getLastIRIWord (String iri) {
+		String[] slashTokens = iri.split("/");
+		String[] hashTagTokens = slashTokens[slashTokens.length-1].split("#");
+		String[] colonTagTokens = hashTagTokens[hashTagTokens.length-1].split(":");
+		String iriEnding = colonTagTokens[colonTagTokens.length-1]; // in case there is a prefix before
+		
+		if (iriEnding != null && iriEnding.length() > 0 && iriEnding.charAt(iriEnding.length() - 1) == '>') {
+			iriEnding = iriEnding.substring(0, iriEnding.length() - 1);
+	    }
+		
+		return iriEnding;
+	}
+    
     // compare if a string belongs to an sm4cep element
     public boolean equalsToSm4cepElement(String retrievedIRI, String sm4cepElement ) {
     	if (retrievedIRI.equalsIgnoreCase("sm4cep:" + sm4cepElement) ||
@@ -1618,9 +1638,13 @@ public class Sm4cepParser {
 
                     Attribute eventAttribute = new Attribute(eventAttributeString); // TODO: we don't know element type here... in principle, we can always set it to string as default value
                     eventAttribute.setEvent(eventSchema);
+                    eventAttribute.setName(this.getLastIRIWord(eventAttributeString)); // adding this for translation to ESPER
                     this.eventAttributes.put(eventAttributeString, eventAttribute); // add attribute to the list of all attributes (needed for the filters definition)
                     eventSchema.addAttribute(eventAttribute); // TODO: here we can add duplicate check, i.e., if the list already contains this elements                
                 }
+                
+                eventSchema.setEventName(this.getLastIRIWord(eventSchemaIRI)); // adding this for translation to ESPER
+                this.eventSchemata.put(eventSchemaIRI, eventSchema);
             }
 
         }
